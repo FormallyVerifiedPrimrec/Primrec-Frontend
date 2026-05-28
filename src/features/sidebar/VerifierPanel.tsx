@@ -25,7 +25,7 @@ export function VerifierPanel({ fn }: { fn?: PrimrecFunction }) {
           <textarea className="textarea postTextarea" value={post} onChange={(e) => setPost(e.target.value)} />
         </div>
 
-        <div className="field verifierResult">
+        <div className="field runnerOutput verifierResult">
           <div className="label">Result</div>
           <pre className="output">{result || '—'}</pre>
         </div>
