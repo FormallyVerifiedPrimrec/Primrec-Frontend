@@ -50,5 +50,5 @@ export function discoverFunctions(source: string): PrimrecFunction[] {
     }
   }
 
-  return found.length ? found : DUMMY_FUNCTIONS
+  return found
 }

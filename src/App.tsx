@@ -1,11 +1,15 @@
-import { useMemo, useState } from 'react'
-import './App.css'
-import { PrimrecEditor } from './features/editor/PrimrecEditor'
-import { useLocalStorageState } from './features/editor/useLocalStorageState'
-import { discoverFunctions, type PrimrecFunction } from './features/primrec/functionDiscovery'
-import { FunctionsPanel } from './features/sidebar/FunctionsPanel'
-import { RunnerPanel } from './features/sidebar/RunnerPanel'
-import { VerifierPanel } from './features/sidebar/VerifierPanel'
+import { useMemo, useState } from "react";
+import "./App.css";
+import { PrimrecEditor } from "./features/editor/PrimrecEditor";
+import { useLocalStorageState } from "./features/editor/useLocalStorageState";
+import {
+  discoverFunctions,
+  type PrimrecFunction,
+} from "./features/primrec/functionDiscovery";
+import { FunctionsPanel } from "./features/sidebar/FunctionsPanel";
+import { RunnerPanel } from "./features/sidebar/RunnerPanel";
+import { VerifierPanel } from "./features/sidebar/VerifierPanel";
+import { InsertButtons } from "./features/editor/InsertButtons";
 
 const DEFAULT_SOURCE = `# PrimRec playground (design stub)
 
@@ -13,30 +17,45 @@ const DEFAULT_SOURCE = `# PrimRec playground (design stub)
 add(x, y) = ...
 mult(x, y) = ...
 fac(n) = ...
-`
+`;
 
 function clamp(n: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, n))
+  return Math.min(max, Math.max(min, n));
 }
 
 function App() {
-  const [source, setSource] = useLocalStorageState('primrec.source', DEFAULT_SOURCE)
-  const [editorFontSize, setEditorFontSize] = useLocalStorageState('primrec.editorFontSize', 14)
-  const [selectedName, setSelectedName] = useState<string>('fac')
+  const [source, setSource] = useLocalStorageState(
+    "primrec.source",
+    DEFAULT_SOURCE,
+  );
+  const [editorFontSize, setEditorFontSize] = useLocalStorageState(
+    "primrec.editorFontSize",
+    14,
+  );
+  const [selectedName, setSelectedName] = useState<string>("fac");
 
-  const functions = useMemo(() => discoverFunctions(source), [source])
+  const functions = useMemo(() => discoverFunctions(source), [source]);
+  const basicFunctions = [
+    { name: "add", code: "add(x, y) = x + y" },
+    { name: "mult", code: "mult(x, y) = x * y" },
+    { name: "fac", code: "fac(n) = if n == 0 then 1 else n * fac(n - 1)" },
+  ];
 
   // Keep selection stable without "fixing" state in an effect.
   // If the selected function disappears (e.g. user edits the name), we fall back to the first entry.
   const effectiveSelectedName = useMemo(() => {
-    if (functions.length === 0) return undefined
-    return functions.some((f) => f.name === selectedName) ? selectedName : functions[0].name
-  }, [functions, selectedName])
+    if (functions.length === 0) return undefined;
+    return functions.some((f) => f.name === selectedName)
+      ? selectedName
+      : functions[0].name;
+  }, [functions, selectedName]);
 
   const selectedFn: PrimrecFunction | undefined = useMemo(() => {
-    if (!effectiveSelectedName) return undefined
-    return functions.find((f) => f.name === effectiveSelectedName) ?? functions[0]
-  }, [functions, effectiveSelectedName])
+    if (!effectiveSelectedName) return undefined;
+    return (
+      functions.find((f) => f.name === effectiveSelectedName) ?? functions[0]
+    );
+  }, [functions, effectiveSelectedName]);
 
   return (
     <div className="appRoot">
@@ -47,7 +66,7 @@ function App() {
               <div className="paneTitle">Editor</div>
             </div>
             <div className="paneSubRow">
-              <div className="paneHint">Funktionen werden automatisch erkannt (derzeit Heuristik + Dummy-Fallback)</div>
+              <InsertButtons setSource={setSource} source={source} />
               <div className="zoomControls" aria-label="Editor font size">
                 <button
                   className="iconBtn"
@@ -83,7 +102,11 @@ function App() {
             </div>
           </div>
           <div className="paneBody">
-            <PrimrecEditor value={source} onChange={setSource} fontSize={editorFontSize} />
+            <PrimrecEditor
+              value={source}
+              onChange={setSource}
+              fontSize={editorFontSize}
+            />
           </div>
         </section>
 
@@ -98,7 +121,7 @@ function App() {
         </aside>
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
