@@ -5,13 +5,6 @@ export type PrimrecFunction = {
   location?: { line: number }
 }
 
-const DUMMY_FUNCTIONS: PrimrecFunction[] = [
-  { name: 'add', arity: 2, params: ['x', 'y'] },
-  { name: 'mult', arity: 2, params: ['x', 'y'] },
-  { name: 'fac', arity: 1, params: ['n'] },
-  { name: 'pow', arity: 2, params: ['x', 'y'] },
-]
-
 // Temporary heuristic until the real PrimRec grammar exists.
 // Supports patterns like:
 //   f(x, y) = ...
@@ -50,6 +43,5 @@ export function discoverFunctions(source: string): PrimrecFunction[] {
     }
   }
 
-  // UX fallback: keep the UI usable even when the editor is empty or contains no recognizable headers.
-  return found.length > 0 ? found : DUMMY_FUNCTIONS
+  return found
 }
