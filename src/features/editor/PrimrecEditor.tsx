@@ -17,12 +17,12 @@ export function PrimrecEditor({
       value={value}
       onChange={(v: string | undefined) => onChange(v ?? '')}
       options={{
-        minimap: { enabled: false },
+        minimap: { enabled: true },
         fontSize,
         fontFamily:
           "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
         scrollBeyondLastLine: false,
-        tabSize: 2,
+        tabSize: 4,
         wordWrap: 'on',
         automaticLayout: true,
       }}
