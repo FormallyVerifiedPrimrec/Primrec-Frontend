@@ -7,7 +7,9 @@ describe('RankedSystem', () => {
   const additionChallenge = MOCK_CHALLENGES[0];
 
   it('should verify a correct solution', () => {
-    const userCode = 'plus(x, y) = rec(id_1_1, succ(id_3_3))(x, y)';
+    const userCode = `plusBase(x) = x;
+plusStep(x, y, previous) = succ(previous);
+plus(x, y) = primrec(plusBase, plusStep);`;
     const result = rankedSystem.verifySubmission('testUser', additionChallenge, userCode);
     
     expect(result.success).toBe(true);

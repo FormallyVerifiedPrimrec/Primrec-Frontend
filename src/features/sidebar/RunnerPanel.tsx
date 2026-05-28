@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { evaluatePrimRecFunction } from '../../primrecLanguage/interpreter'
+import { preprocessProgram } from '../../primrecLanguage/interpreter'
 import type { ParseResult } from '../../primrecLanguage'
 import type { PrimrecFunction } from '../primrec/functionDiscovery'
 
@@ -19,6 +19,11 @@ export function RunnerPanel({ fn, parseResult }: { fn?: PrimrecFunction; parseRe
     while (normalized.length < paramNames.length) normalized.push('')
     return normalized
   }, [fn, inputsByFn, paramNames.length])
+
+  const compiledProgram = useMemo(() => {
+    if (!parseResult.program) return undefined
+    return preprocessProgram(parseResult.program, { memoize: true })
+  }, [parseResult.program])
 
   function setAt(idx: number, next: string) {
     if (!fn) return
@@ -70,12 +75,12 @@ export function RunnerPanel({ fn, parseResult }: { fn?: PrimrecFunction; parseRe
     }
 
     try {
-      const result = evaluatePrimRecFunction(parseResult.program, fn.name, parsedArgs)
+      const result = compiledProgram!.evaluate(fn.name, parsedArgs)
       return `${fn.name}(${renderedArgs}) = ${result}`
     } catch (error) {
       return error instanceof Error ? error.message : 'Evaluation failed.'
     }
-  }, [fn, paramNames, parseResult.diagnostics, parseResult.program, values])
+  }, [compiledProgram, fn, paramNames, parseResult.diagnostics, parseResult.program, values])
 
   return (
     <section className="panel runnerPanel">

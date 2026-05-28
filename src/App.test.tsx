@@ -14,7 +14,7 @@ describe('App', () => {
 
     expect(screen.getByLabelText('Monaco editor')).toBeInTheDocument()
     expect(screen.getByText('Run')).toBeInTheDocument()
-    expect(screen.getByText('Diagnostics')).toBeInTheDocument()
+    expect(screen.getByText('Verify')).toBeInTheDocument()
     expect(screen.getAllByText(/plus\(x, y\)/).length).toBeGreaterThan(0)
   })
 })
