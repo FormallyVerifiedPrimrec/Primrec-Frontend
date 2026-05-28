@@ -3,22 +3,19 @@ import './App.css'
 import { useLocalStorageState } from './features/editor/useLocalStorageState'
 import { discoverFunctions, type PrimrecFunction } from './features/primrec/functionDiscovery'
 import { AppShell } from './features/layout/AppShell'
+import { COMPLETION_EXAMPLE } from './primrecLanguage/constants'
+import { parsePrimRecProgram } from './primrecLanguage'
 
-const DEFAULT_SOURCE = `# PrimRec playground (design stub)
-
-# Example-like definitions (syntax TBD)
-add(x, y) = ...
-mult(x, y) = ...
-fac(n) = ...
-`;
+const DEFAULT_SOURCE = COMPLETION_EXAMPLE
 
 
 function App() {
   const [source, setSource] = useLocalStorageState('primrec.source', DEFAULT_SOURCE)
   const [editorFontSize, setEditorFontSize] = useLocalStorageState('primrec.editorFontSize', 14)
-  const [selectedName, setSelectedName] = useState<string>('fac')
+  const [selectedName, setSelectedName] = useState<string>('plus')
 
   const functions = useMemo(() => discoverFunctions(source), [source])
+  const parseResult = useMemo(() => parsePrimRecProgram(source), [source])
 
   // Keep selection stable without "fixing" state in an effect.
   // If the selected function disappears (e.g. user edits the name), we fall back to the first entry.
@@ -42,6 +39,7 @@ function App() {
       effectiveSelectedName={effectiveSelectedName}
       setSelectedName={setSelectedName}
       selectedFn={selectedFn}
+      parseResult={parseResult}
     />
   )
 }

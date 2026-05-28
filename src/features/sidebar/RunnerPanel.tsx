@@ -1,16 +1,15 @@
 import { useMemo, useState } from 'react'
+import { evaluatePrimRecFunction } from '../../primrecLanguage/interpreter'
+import type { ParseResult } from '../../primrecLanguage'
 import type { PrimrecFunction } from '../primrec/functionDiscovery'
 
-export function RunnerPanel({ fn }: { fn?: PrimrecFunction }) {
+export function RunnerPanel({ fn, parseResult }: { fn?: PrimrecFunction; parseResult: ParseResult }) {
   // Preserve per-function input values while switching between functions.
   const [inputsByFn, setInputsByFn] = useState<Record<string, string[]>>({})
-  const [output, setOutput] = useState<string>('')
 
   const paramNames = useMemo(() => {
     if (!fn) return [] as string[]
-    if (fn.params && fn.params.length) return fn.params
-    const count = fn.arity ?? 0
-    return Array.from({ length: count }, (_, i) => `arg${i + 1}`)
+    return fn.params.length > 0 ? fn.params : Array.from({ length: fn.arity }, (_, i) => `arg${i + 1}`)
   }, [fn])
 
   const values = useMemo(() => {
@@ -32,26 +31,56 @@ export function RunnerPanel({ fn }: { fn?: PrimrecFunction }) {
     })
   }
 
-  function run() {
-    if (!fn) {
-      setOutput('No function selected.')
-      return
-    }
+  const output = useMemo(() => {
+    if (!fn) return ''
 
     const renderedArgs = paramNames
-      .map((p, i) => `${p}=${values[i] === '' ? '…' : values[i]}`)
+      .map((param, index) => {
+        const trimmed = values[index].trim()
+        return `${param}=${/^\d+$/.test(trimmed) ? trimmed : '?'}`
+      })
       .join(', ')
+    const preview = `${fn.name}(${renderedArgs}) =`
 
-    setOutput(`Result (stub): ${fn.name}(${renderedArgs}) = …`)
-  }
+    if (!parseResult.program) {
+      const firstError = parseResult.diagnostics.find((item) => item.severity === 'error')
+      return firstError ? `Program is invalid: ${firstError.message}` : 'Program is invalid.'
+    }
+
+    const parsedArgs: number[] = []
+    let hasMissingInput = false
+
+    for (let index = 0; index < values.length; index += 1) {
+      const trimmed = values[index].trim()
+      if (trimmed === '') {
+        hasMissingInput = true
+        continue
+      }
+
+      if (!/^\d+$/.test(trimmed)) {
+        return `Input '${paramNames[index]}' must be a natural number.`
+      }
+      parsedArgs.push(Number(trimmed))
+    }
+
+    if (hasMissingInput) return preview
+
+    if (parsedArgs.some((value) => !Number.isSafeInteger(value))) {
+      return 'Inputs must be safe natural numbers.'
+    }
+
+    try {
+      const result = evaluatePrimRecFunction(parseResult.program, fn.name, parsedArgs)
+      return `${fn.name}(${renderedArgs}) = ${result}`
+    } catch (error) {
+      return error instanceof Error ? error.message : 'Evaluation failed.'
+    }
+  }, [fn, paramNames, parseResult.diagnostics, parseResult.program, values])
 
   return (
     <section className="panel runnerPanel">
       <div className="panelHeader">
         <div className="panelTitle">Run</div>
-        <button className="btn" type="button" onClick={run} disabled={!fn}>
-          Run
-        </button>
       </div>
 
       {/* Inputs area scrolls; output stays pinned at the bottom of the panel. */}
@@ -79,7 +108,7 @@ export function RunnerPanel({ fn }: { fn?: PrimrecFunction }) {
 
         <div className="field runnerOutput">
           <div className="label">Output</div>
-          <pre className="output">{output || '—'}</pre>
+          <pre className="output" aria-label="Output" aria-live="polite">{output}</pre>
         </div>
       </div>
     </section>
