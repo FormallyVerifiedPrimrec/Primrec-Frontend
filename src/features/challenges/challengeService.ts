@@ -30,6 +30,17 @@ export class ChallengeService {
   getById(id: string): Challenge | undefined {
     return this.challenges.find(c => c.id === id);
   }
+
+  createChallenge(challenge: Omit<Challenge, 'id' | 'votes' | 'createdAt'>) {
+    const newChallenge: Challenge = {
+      ...challenge,
+      id: Math.random().toString(36).substr(2, 9),
+      votes: 0,
+      createdAt: Date.now(),
+    };
+    this.challenges.unshift(newChallenge);
+    return newChallenge;
+  }
 }
 
 export const challengeService = new ChallengeService();
