@@ -3,9 +3,11 @@ import Editor from '@monaco-editor/react'
 export function PrimrecEditor({
   value,
   onChange,
+  fontSize,
 }: {
   value: string
   onChange: (next: string) => void
+  fontSize: number
 }) {
   return (
     <Editor
@@ -16,7 +18,7 @@ export function PrimrecEditor({
       onChange={(v: string | undefined) => onChange(v ?? '')}
       options={{
         minimap: { enabled: false },
-        fontSize: 14,
+        fontSize,
         fontFamily:
           "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
         scrollBeyondLastLine: false,

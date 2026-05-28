@@ -5,11 +5,13 @@
 }
 
 .topBar {
-  height: 56px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--bg) 92%, transparent);
   backdrop-filter: blur(6px);
@@ -36,7 +38,48 @@
 
 .topBarActions {
   display: flex;
+  align-items: center;
   gap: 12px;
+  flex-wrap: wrap;
+}
+
+.zoomControls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--social-bg);
+}
+
+.zoomValue {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-h);
+  padding: 0 6px;
+  min-width: 52px;
+  text-align: center;
+}
+
+.iconBtn {
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  color: var(--text-h);
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.iconBtn:hover {
+  background: var(--code-bg);
+}
+
+.iconBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .link {
@@ -57,7 +100,7 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: minmax(0, 1fr) clamp(320px, 32vw, 460px);
 }
 
 .editorPane {
@@ -69,6 +112,7 @@
 
 .sidePane {
   min-width: 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -108,6 +152,14 @@
   border-radius: 12px;
   overflow: hidden;
   background: color-mix(in srgb, var(--bg) 96%, transparent);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.functionsPanel {
+  /* Keeps the function list usable at high zoom and on small viewports */
+  max-height: 55svh;
 }
 
 .panelHeader {
@@ -159,6 +211,15 @@
   cursor: not-allowed;
 }
 
+.btn:focus-visible,
+.link:focus-visible,
+.input:focus-visible,
+.textarea:focus-visible,
+.listItem:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .field {
   padding: 10px;
   display: flex;
@@ -188,7 +249,8 @@
 .list {
   display: flex;
   flex-direction: column;
-  max-height: 220px;
+  min-height: 0;
+  max-height: min(35svh, 420px);
   overflow: auto;
 }
 
@@ -203,6 +265,7 @@
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   text-align: left;
+  min-width: 0;
 }
 
 .listItem:hover {
