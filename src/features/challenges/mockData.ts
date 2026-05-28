@@ -5,7 +5,9 @@ export const MOCK_CHALLENGES: Challenge[] = [
     id: '1',
     title: 'Addition',
     description: 'Implement a function `plus(x, y)` that returns the sum of $x$ and $y$.',
-    templateFunc: 'plus(x, y) = rec(id_1_1, succ(id_3_3))(x, y)',
+    templateFunc: `plusBase(x) = x;
+plusStep(x, y, previous) = succ(previous);
+plus(x, y) = primrec(plusBase, plusStep);`,
     postcondition: 'plus(x, y) = x + y',
     votes: 42,
     createdAt: Date.now() - 1000000,
@@ -19,7 +21,12 @@ export const MOCK_CHALLENGES: Challenge[] = [
     id: '2',
     title: 'Multiplication',
     description: 'Implement a function `mult(x, y)` that returns the product of $x$ and $y$. Hint: Use your `plus` function or define it locally.',
-    templateFunc: 'plus(x, y) = rec(id_1_1, succ(id_3_3))(x, y)\nmult(x, y) = rec(zero, plus(id_3_1, id_3_3))(x, y)',
+    templateFunc: `plusBase(x) = x;
+plusStep(x, y, previous) = succ(previous);
+plus(x, y) = primrec(plusBase, plusStep);
+multBase(x) = zero();
+multStep(x, y, previous) = plus(previous, x);
+mult(x, y) = primrec(multBase, multStep);`,
     postcondition: 'mult(x, y) = x * y',
     votes: 28,
     createdAt: Date.now() - 500000,
@@ -33,7 +40,15 @@ export const MOCK_CHALLENGES: Challenge[] = [
     id: '3',
     title: 'Factorial',
     description: 'Implement the factorial function $n!$. Remember that $0! = 1$.',
-    templateFunc: 'plus(x, y) = rec(id_1_1, succ(id_3_3))(x, y)\nmult(x, y) = rec(zero, plus(id_3_1, id_3_3))(x, y)\nfact(n) = rec(succ(zero), mult(id_2_1, succ(id_2_2)))(n)',
+    templateFunc: `plusBase(x) = x;
+plusStep(x, y, previous) = succ(previous);
+plus(x, y) = primrec(plusBase, plusStep);
+multBase(x) = zero();
+multStep(x, y, previous) = plus(previous, x);
+mult(x, y) = primrec(multBase, multStep);
+factBase() = 1;
+factStep(y, previous) = mult(succ(y), previous);
+fact(n) = primrec(factBase, factStep);`,
     postcondition: 'fact(n) = n!',
     votes: 15,
     createdAt: Date.now() - 200000,

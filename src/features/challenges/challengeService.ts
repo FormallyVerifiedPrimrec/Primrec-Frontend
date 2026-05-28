@@ -5,8 +5,8 @@ export class ChallengeService {
   private challenges: Challenge[] = [...MOCK_CHALLENGES];
 
   getSorted(by: 'votes' | 'date', query: string = ''): Challenge[] {
-    let filtered = this.challenges.filter(c => 
-      c.title.toLowerCase().includes(query.toLowerCase()) || 
+    const filtered = this.challenges.filter(c =>
+      c.title.toLowerCase().includes(query.toLowerCase()) ||
       c.description.toLowerCase().includes(query.toLowerCase())
     );
 

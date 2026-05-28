@@ -5,7 +5,6 @@ import type { ParseResult } from '../../primrecLanguage'
 import { EditorPane } from './EditorPane'
 import { ToolsSidebar } from './ToolsSidebar'
 import type { Challenge, SubmissionResult } from '../challenges/types'
-import { ChallengeDetails } from '../challenges/ChallengeDetails'
 
 export function AppShell({
   source,
