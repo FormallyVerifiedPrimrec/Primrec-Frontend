@@ -1,14 +1,15 @@
 export type PrimrecFunction = {
   name: string
   arity?: number
+  params?: string[]
   location?: { line: number }
 }
 
 const DUMMY_FUNCTIONS: PrimrecFunction[] = [
-  { name: 'add', arity: 2 },
-  { name: 'mult', arity: 2 },
-  { name: 'fac', arity: 1 },
-  { name: 'pow', arity: 2 },
+  { name: 'add', arity: 2, params: ['x', 'y'] },
+  { name: 'mult', arity: 2, params: ['x', 'y'] },
+  { name: 'fac', arity: 1, params: ['n'] },
+  { name: 'pow', arity: 2, params: ['x', 'y'] },
 ]
 
 // Temporary heuristic until the real PrimRec grammar exists.
@@ -29,15 +30,17 @@ export function discoverFunctions(source: string): PrimrecFunction[] {
     const prefix = source.slice(0, m.index)
     const line = prefix.split(/\r\n|\r|\n/).length
 
-    const arity = args
+    const params = args
       ? args
           .split(',')
           .map((s) => s.trim())
-          .filter(Boolean).length
+          .filter(Boolean)
       : undefined
 
+    const arity = params ? params.length : undefined
+
     if (!found.some((f) => f.name === name)) {
-      found.push({ name, arity, location: { line } })
+      found.push({ name, arity, params, location: { line } })
     }
   }
 

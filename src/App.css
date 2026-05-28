@@ -197,6 +197,12 @@
   gap: 6px;
 }
 
+.inputsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
 .label {
   font-size: 12px;
   color: var(--text);
