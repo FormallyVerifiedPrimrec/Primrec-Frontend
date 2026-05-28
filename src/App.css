@@ -51,10 +51,12 @@
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) clamp(320px, 32vw, 460px);
+  grid-template-rows: minmax(0, 1fr);
 }
 
 .editorPane {
   min-width: 0;
+  min-height: 0;
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -67,7 +69,11 @@
   flex-direction: column;
   gap: 12px;
   padding: 12px;
-  overflow: auto;
+  overflow: hidden;
+}
+
+.sidePane > .panel {
+  flex: 1 1 0;
 }
 
 .paneHeader {
@@ -127,10 +133,6 @@
   min-height: 0;
 }
 
-.functionsPanel {
-  /* Keeps the function list usable at high zoom and on small viewports */
-  max-height: 55svh;
-}
 
 .panelHeader {
   display: flex;
@@ -195,11 +197,6 @@
   overflow: auto;
 }
 
-.runnerPanel,
-.verifierPanel {
-  /* prevents panels from pushing content out of view */
-  max-height: 42svh;
-}
 
 .runnerBody {
   flex: 1;
@@ -270,7 +267,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  max-height: min(35svh, 420px);
+  flex: 1;
   overflow: auto;
 }
 
@@ -328,6 +325,10 @@
 @media (max-width: 1024px) {
   .workspace {
     grid-template-columns: 1fr;
+  }
+
+  .sidePane {
+    overflow: auto;
   }
 
   .editorPane {
