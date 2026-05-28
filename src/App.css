@@ -270,11 +270,7 @@
   border-top: 1px solid var(--border);
 }
 
-/* Verifier layout: same behavior as Runner
-   - Postcondition area can shrink + scroll on zoom-in
-   - Result area is pinned at the bottom like Runner's Output block
-*/
-.verifierBody {
+.diagnosticsBody {
   flex: 1;
   min-height: 0;
   display: flex;
@@ -282,25 +278,71 @@
   overflow: hidden;
 }
 
-.verifierPost {
+.diagnosticsList {
   flex: 1;
   min-height: 0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.postTextarea {
-  flex: 1;
-  min-height: 0;
-  height: auto;
   overflow: auto;
-  resize: none;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Result styling is inherited from .field + .output, and positioning from .runnerOutput */
-.verifierResult {
+.selectedSummary {
   flex: 0 0 auto;
+  border-top: 1px solid var(--border);
+}
+
+.statusBadge {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.statusBadge.ok {
+  color: #147d3f;
+  background: rgba(20, 125, 63, 0.1);
+  border-color: rgba(20, 125, 63, 0.3);
+}
+
+.statusBadge.error {
+  color: #b42318;
+  background: rgba(180, 35, 24, 0.1);
+  border-color: rgba(180, 35, 24, 0.3);
+}
+
+.issueList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.issueItem {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--code-bg);
+}
+
+.issueHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.issueCode {
+  color: var(--text-h);
+  overflow-wrap: anywhere;
+}
+
+.issueMessage {
+  margin-top: 4px;
+  color: var(--text-h);
+  font-size: 12px;
+  overflow-wrap: anywhere;
 }
 
 .field {

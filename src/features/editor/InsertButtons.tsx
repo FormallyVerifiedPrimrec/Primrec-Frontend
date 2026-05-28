@@ -1,23 +1,21 @@
-import React from 'react'
+import type { Dispatch, SetStateAction } from 'react'
+import { parseSyntax } from '../../primrecLanguage/parser'
 
 export function InsertButtons({
   setSource,
   source,
 }: {
-  setSource: React.Dispatch<React.SetStateAction<string>>
+  setSource: Dispatch<SetStateAction<string>>
   source: string
 }) {
   const items = [
-    { name: 'add', label: 'add', code: 'add(x, y) = x + y' },
-    { name: 'mult', label: 'mult', code: 'mult(x, y) = x * y' },
-    { name: 'fac', label: 'fac', code: 'fac(n) = if n == 0 then 1 else n * fac(n - 1)' },
+    { name: 'id', label: 'id', code: 'id(x) = x;' },
+    { name: 'one', label: 'one', code: 'one() = 1;' },
+    { name: 'double', label: 'double', code: 'double(x) = plus(x, x);' },
   ]
 
   function existsInSource(name: string) {
-    // Match function definitions like "add(x, y) = ..." or "add(x, y) := ..."
-    // but not if it's just "= ..." (incomplete/stub)
-    const re = new RegExp(`(^|\\n)\\s*${name}\\s*\\([^)]*\\)\\s*(?::=|=)\\s*[^.\\s]`, 'm')
-    return re.test(source)
+    return parseSyntax(source).ast.definitions.some((definition) => definition.name === name)
   }
 
   const visibleItems = items.filter((it) => !existsInSource(it.name))
@@ -65,4 +63,3 @@ export function InsertButtons({
     </div>
   )
 }
-

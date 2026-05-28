@@ -45,7 +45,9 @@ export function FunctionsPanel({
               >
                 <div className="listItemMain">
                   <div className="fnName">{f.name}</div>
-                  <div className="fnMeta">arity: {f.arity ?? '—'}</div>
+                  <div className="fnMeta">
+                    {f.name}({f.params.join(', ')}) / arity {f.arity}
+                  </div>
                 </div>
                 {f.location ? <div className="fnLoc">L{f.location.line}</div> : null}
               </button>

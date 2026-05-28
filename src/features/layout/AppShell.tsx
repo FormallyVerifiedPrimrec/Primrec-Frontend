@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
 
 import type { PrimrecFunction } from '../primrec/functionDiscovery'
+import type { ParseResult } from '../../primrecLanguage'
 import { EditorPane } from './EditorPane'
 import { ToolsSidebar } from './ToolsSidebar'
 
@@ -13,6 +14,7 @@ export function AppShell({
   effectiveSelectedName,
   setSelectedName,
   selectedFn,
+  parseResult,
 }: {
   source: string
   setSource: Dispatch<SetStateAction<string>>
@@ -22,6 +24,7 @@ export function AppShell({
   effectiveSelectedName?: string
   setSelectedName: Dispatch<SetStateAction<string>>
   selectedFn?: PrimrecFunction
+  parseResult: ParseResult
 }) {
   return (
     <div className="appRoot">
@@ -37,6 +40,7 @@ export function AppShell({
           selectedName={effectiveSelectedName}
           onSelect={(name) => setSelectedName(name)}
           selectedFn={selectedFn}
+          parseResult={parseResult}
         />
       </main>
     </div>
