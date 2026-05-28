@@ -251,12 +251,14 @@ function VerifierPanel({ fn }: { fn?: PrimrecFunction }) {
           Verify
         </button>
       </div>
-      <div className="panelContent">
-        <div className="field">
+
+      <div className="verifierBody">
+        <div className="field verifierPost">
           <div className="label">Postcondition</div>
-          <textarea className="textarea" value={post} onChange={(e) => setPost(e.target.value)} rows={3} />
+          <textarea className="textarea postTextarea" value={post} onChange={(e) => setPost(e.target.value)} />
         </div>
-        <div className="field">
+
+        <div className="field verifierResult">
           <div className="label">Result</div>
           <pre className="output">{result || '—'}</pre>
         </div>
