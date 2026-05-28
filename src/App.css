@@ -1,5 +1,6 @@
 .appRoot {
-  height: 100svh;
+  height: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -78,8 +79,17 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(320px, 32vw, 460px);
+  --sidebar-width: clamp(320px, 32vw, 460px);
+  grid-template-columns: minmax(0, 1fr) var(--sidebar-width);
   grid-template-rows: minmax(0, 1fr);
+}
+
+/* When the viewport gets narrower (often due to browser zoom-in),
+   give the sidebar a larger share so panel content stays readable. */
+@media (max-width: 1200px) {
+  .workspace {
+    --sidebar-width: clamp(360px, 44vw, 560px);
+  }
 }
 
 .editorPane {
@@ -97,12 +107,22 @@
   flex-direction: column;
   gap: 12px;
   padding: 12px;
-  overflow: hidden;
+  overflow: auto; /* allow scrolling when zoom makes content taller */
 }
 
 /* Make Functions/Run/Verify occupy equal height (≈ one third each) within the sidebar. */
 .sidePane > .panel {
   flex: 1 1 0;
+  min-height: 0;
+}
+
+/* When vertical space is tight (often due to zoom-in), stop forcing 1/3 heights.
+   Let panels keep a usable minimum height and scroll the sidebar instead. */
+@media (max-height: 820px) {
+  .sidePane > .panel {
+    flex: 0 0 auto;
+    min-height: 280px;
+  }
 }
 
 .paneHeader {
@@ -250,7 +270,10 @@
   border-top: 1px solid var(--border);
 }
 
-/* Verifier layout: textarea is the only scrollable area; result stays pinned below. */
+/* Verifier layout: same behavior as Runner
+   - Postcondition area can shrink + scroll on zoom-in
+   - Result area is pinned at the bottom like Runner's Output block
+*/
 .verifierBody {
   flex: 1;
   min-height: 0;
@@ -260,26 +283,24 @@
 }
 
 .verifierPost {
-  flex: 0 0 auto;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .postTextarea {
-  height: 96px;
-  min-height: 96px;
+  flex: 1;
+  min-height: 0;
+  height: auto;
   overflow: auto;
   resize: none;
 }
 
+/* Result styling is inherited from .field + .output, and positioning from .runnerOutput */
 .verifierResult {
-  flex: 1;
-  min-height: 0;
-  border-top: 1px solid var(--border);
-}
-
-.verifierResult .output {
-  flex: 1;
-  min-height: 0;
-  max-height: none;
+  flex: 0 0 auto;
 }
 
 .field {
@@ -387,18 +408,29 @@
   color: var(--text);
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 900px) {
+  /* Very narrow view: panels go UNDER the editor.
+     Use a responsive grid and keep everything scrollable inside the app. */
   .workspace {
-    grid-template-columns: 1fr;
-  }
-
-  .sidePane {
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   .editorPane {
     border-right: 0;
     border-bottom: 1px solid var(--border);
-    height: 60svh;
+    height: 55svh;
+  }
+
+  .sidePane {
+    overflow: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    align-items: start;
+  }
+
+  .sidePane > .panel {
+    min-height: 280px;
   }
 }
