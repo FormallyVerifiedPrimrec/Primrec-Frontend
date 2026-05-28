@@ -50,5 +50,6 @@ export function discoverFunctions(source: string): PrimrecFunction[] {
     }
   }
 
-  return found
+  // UX fallback: keep the UI usable even when the editor is empty or contains no recognizable headers.
+  return found.length > 0 ? found : DUMMY_FUNCTIONS
 }
