@@ -196,36 +196,40 @@ function RunnerPanel({ fn }: { fn?: PrimrecFunction }) {
   }
 
   return (
-    <section className="panel">
+    <section className="panel runnerPanel">
       <div className="panelHeader">
         <div className="panelTitle">Run</div>
         <button className="btn" type="button" onClick={run} disabled={!fn}>
           Run
         </button>
       </div>
-      <div className="field">
-        <div className="label">Inputs</div>
-        {fn && paramNames.length > 0 ? (
-          <div className="inputsGrid">
-            {paramNames.map((p, i) => (
-              <input
-                key={`${fn.name}:${p}:${i}`}
-                className="input"
-                placeholder={p}
-                value={values[i] ?? ''}
-                onChange={(e) => setAt(i, e.target.value)}
-                inputMode="numeric"
-                aria-label={`Input ${p}`}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="empty">No inputs</div>
-        )}
-      </div>
-      <div className="field">
-        <div className="label">Output</div>
-        <pre className="output">{output || '—'}</pre>
+
+      <div className="runnerBody">
+        <div className="field runnerInputs">
+          <div className="label">Inputs</div>
+          {fn && paramNames.length > 0 ? (
+            <div className="inputsGrid">
+              {paramNames.map((p, i) => (
+                <input
+                  key={`${fn.name}:${p}:${i}`}
+                  className="input"
+                  placeholder={p}
+                  value={values[i] ?? ''}
+                  onChange={(e) => setAt(i, e.target.value)}
+                  inputMode="numeric"
+                  aria-label={`Input ${p}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="empty">No inputs</div>
+          )}
+        </div>
+
+        <div className="field runnerOutput">
+          <div className="label">Output</div>
+          <pre className="output">{output || '—'}</pre>
+        </div>
       </div>
     </section>
   )
@@ -240,20 +244,22 @@ function VerifierPanel({ fn }: { fn?: PrimrecFunction }) {
   }
 
   return (
-    <section className="panel">
+    <section className="panel verifierPanel">
       <div className="panelHeader">
         <div className="panelTitle">Verify</div>
         <button className="btn" type="button" onClick={verify} disabled={!fn}>
           Verify
         </button>
       </div>
-      <div className="field">
-        <div className="label">Postcondition</div>
-        <textarea className="textarea" value={post} onChange={(e) => setPost(e.target.value)} rows={3} />
-      </div>
-      <div className="field">
-        <div className="label">Result</div>
-        <pre className="output">{result || '—'}</pre>
+      <div className="panelContent">
+        <div className="field">
+          <div className="label">Postcondition</div>
+          <textarea className="textarea" value={post} onChange={(e) => setPost(e.target.value)} rows={3} />
+        </div>
+        <div className="field">
+          <div className="label">Result</div>
+          <pre className="output">{result || '—'}</pre>
+        </div>
       </div>
     </section>
   )

@@ -190,6 +190,36 @@
   outline-offset: 2px;
 }
 
+.panelContent {
+  min-height: 0;
+  overflow: auto;
+}
+
+.runnerPanel,
+.verifierPanel {
+  /* prevents panels from pushing content out of view */
+  max-height: 42svh;
+}
+
+.runnerBody {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.runnerInputs {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.runnerOutput {
+  flex: 0 0 auto;
+  border-top: 1px solid var(--border);
+}
+
 .field {
   padding: 10px;
   display: flex;
@@ -199,8 +229,20 @@
 
 .inputsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
+}
+
+@media (max-width: 560px) {
+  .inputsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 360px) {
+  .inputsGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .label {
@@ -220,6 +262,8 @@
   font-size: 13px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  max-height: 220px;
+  overflow: auto;
 }
 
 .list {
