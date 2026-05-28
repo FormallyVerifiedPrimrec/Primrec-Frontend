@@ -23,6 +23,8 @@ function App() {
 
   const functions = useMemo(() => discoverFunctions(source), [source])
 
+  // Keep selection stable without "fixing" state in an effect.
+  // If the selected function disappears (e.g. user edits the name), we fall back to the first entry.
   const effectiveSelectedName = useMemo(() => {
     if (functions.length === 0) return undefined
     return functions.some((f) => f.name === selectedName) ? selectedName : functions[0].name
@@ -153,6 +155,7 @@ function FunctionsPanel({
 }
 
 function RunnerPanel({ fn }: { fn?: PrimrecFunction }) {
+  // Preserve per-function input values while switching between functions.
   const [inputsByFn, setInputsByFn] = useState<Record<string, string[]>>({})
   const [output, setOutput] = useState<string>('')
 
@@ -204,6 +207,7 @@ function RunnerPanel({ fn }: { fn?: PrimrecFunction }) {
         </button>
       </div>
 
+      {/* Inputs area scrolls; output stays pinned at the bottom of the panel. */}
       <div className="runnerBody">
         <div className="field runnerInputs">
           <div className="label">Inputs</div>
@@ -255,6 +259,7 @@ function VerifierPanel({ fn }: { fn?: PrimrecFunction }) {
       <div className="verifierBody">
         <div className="field verifierPost">
           <div className="label">Postcondition</div>
+          {/* Only this textarea should scroll; the result is pinned at the bottom. */}
           <textarea className="textarea postTextarea" value={post} onChange={(e) => setPost(e.target.value)} />
         </div>
 

@@ -72,6 +72,7 @@
   overflow: hidden;
 }
 
+/* Make Functions/Run/Verify occupy equal height (≈ one third each) within the sidebar. */
 .sidePane > .panel {
   flex: 1 1 0;
 }
@@ -198,6 +199,7 @@
 }
 
 
+/* Runner layout: inputs can scroll, output stays pinned to the bottom. */
 .runnerBody {
   flex: 1;
   min-height: 0;
@@ -217,6 +219,7 @@
   border-top: 1px solid var(--border);
 }
 
+/* Verifier layout: textarea is the only scrollable area; result stays pinned below. */
 .verifierBody {
   flex: 1;
   min-height: 0;
