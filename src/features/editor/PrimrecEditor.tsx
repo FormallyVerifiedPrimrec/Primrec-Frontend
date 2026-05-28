@@ -5,7 +5,7 @@ import {
   LANGUAGE_ID,
   registerPrimRecLanguage,
   updatePrimRecMarkers,
-} from '../../editor/primRecMonaco'
+} from './monaco/primRecMonaco'
 
 export function PrimrecEditor({
   value,

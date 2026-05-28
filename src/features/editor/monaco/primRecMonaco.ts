@@ -8,13 +8,13 @@ import {
   getSemanticHover,
   LANGUAGE_ID,
   parsePrimRecProgram,
-} from '../primrecLanguage';
+} from '../../../primrecLanguage'
 import type {
   Diagnostic,
   Expression,
   FunctionDefinition,
   SourceRange,
-} from '../primrecLanguage';
+} from '../../../primrecLanguage'
 
 const MARKER_OWNER = 'primrec-parser';
 let registered = false;

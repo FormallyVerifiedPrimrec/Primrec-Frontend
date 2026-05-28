@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getFunctionSignatures } from '../primrecLanguage';
+import { getFunctionSignatures } from '../../../primrecLanguage'
 import {
   getPrimRecDependencyCompletionContext,
   getPrimRecDependencyCompletionSignatures,
