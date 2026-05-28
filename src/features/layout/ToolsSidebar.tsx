@@ -19,7 +19,12 @@ export function ToolsSidebar({
 }) {
   return (
     <aside className="sidePane" aria-label="Tools">
-      <FunctionsPanel functions={functions} selectedName={selectedName} onSelect={onSelect} />
+      <FunctionsPanel
+        functions={functions}
+        selectedName={selectedName}
+        onSelect={onSelect}
+        parseResult={parseResult}
+      />
       <RunnerPanel fn={selectedFn} parseResult={parseResult} />
       <DiagnosticsPanel fn={selectedFn} parseResult={parseResult} />
     </aside>
