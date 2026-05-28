@@ -13,7 +13,7 @@ describe('App', () => {
     render(<App />)
 
     expect(screen.getByLabelText('Monaco editor')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Run' })).toBeInTheDocument()
+    expect(screen.getByText('Run')).toBeInTheDocument()
     expect(screen.getByText('Diagnostics')).toBeInTheDocument()
     expect(screen.getAllByText(/plus\(x, y\)/).length).toBeGreaterThan(0)
   })
