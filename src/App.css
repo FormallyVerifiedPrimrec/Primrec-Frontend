@@ -552,10 +552,6 @@
   min-width: 0;
 }
 
-.listItemChild {
-  padding-left: 22px;
-}
-
 .listItem:hover {
   background: var(--social-bg);
 }
@@ -643,7 +639,8 @@
   gap: 12px;
 }
 
-.dashboardControls input, .dashboardControls select {
+.dashboardControls input,
+.dashboardControls select {
   padding: 8px 12px;
   background: var(--code-bg);
   border: 1px solid var(--border);
@@ -729,7 +726,8 @@
   margin-top: 12px;
 }
 
-.leaderboard th, .leaderboard td {
+.leaderboard th,
+.leaderboard td {
   text-align: left;
   padding: 8px;
   border-bottom: 1px solid var(--border);
