@@ -12,17 +12,24 @@ export function EditorPane({
   setSource,
   editorFontSize,
   setEditorFontSize,
+  onSubmit,
+  isChallengeActive,
 }: {
   source: string
   setSource: Dispatch<SetStateAction<string>>
   editorFontSize: number
   setEditorFontSize: Dispatch<SetStateAction<number>>
+  onSubmit?: () => void
+  isChallengeActive?: boolean
 }) {
   return (
     <section className="editorPane" aria-label="Editor">
       <div className="paneHeader">
         <div className="paneHeaderRow">
           <div className="paneTitle">Editor</div>
+          {isChallengeActive && onSubmit && (
+            <button className="submitBtn" onClick={onSubmit}>Submit Solution</button>
+          )}
         </div>
         <div className="paneSubRow">
           <InsertButtons setSource={setSource} source={source} />

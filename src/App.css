@@ -5,6 +5,121 @@
   flex-direction: column;
 }
 
+.appHeader {
+  flex: 0 0 auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  padding: 0 20px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+}
+
+.headerContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+
+.navLinks {
+  display: flex;
+  gap: 8px;
+}
+
+.navBtn {
+  background: none;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: var(--text);
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.navBtn:hover {
+  background: var(--social-bg);
+  color: var(--text-h);
+}
+
+.navBtn.active {
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+
+.appMain {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.appMain > .workspace {
+  height: 100%;
+}
+
+.appMain > .dashboard {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.challengeFloatingInfo {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  z-index: 100;
+  width: 320px;
+  max-height: calc(100% - 100px);
+  background: var(--social-bg);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  overflow-y: auto;
+}
+
+.challengeFloatingInfo .challengeDetails {
+  padding: 0;
+}
+
+.challengeFloatingInfo .backBtn {
+  font-size: 12px;
+}
+
+.challengeFloatingInfo h2 {
+  font-size: 16px;
+  margin: 8px 0;
+}
+
+.challengeDetails {
+  padding: 12px;
+}
+
+.challengeTitle {
+  font-family: var(--heading);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-h);
+  margin: 0 0 8px 0;
+}
+
+.challengeDescriptionMarkdown {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
 .fnInsertControls {
   display: flex;
   align-items: center;
@@ -110,19 +225,10 @@
   overflow: auto; /* allow scrolling when zoom makes content taller */
 }
 
-/* Make Functions/Run/Verify occupy equal height (≈ one third each) within the sidebar. */
+/* Make panels kept a usable minimum height and scroll the sidebar instead. */
 .sidePane > .panel {
-  flex: 1 1 0;
-  min-height: 0;
-}
-
-/* When vertical space is tight (often due to zoom-in), stop forcing 1/3 heights.
-   Let panels keep a usable minimum height and scroll the sidebar instead. */
-@media (max-height: 820px) {
-  .sidePane > .panel {
-    flex: 0 0 auto;
-    min-height: 280px;
-  }
+  flex: 0 0 auto;
+  min-height: 200px;
 }
 
 .paneHeader {
@@ -511,5 +617,186 @@
 
   .sidePane > .panel {
     min-height: 280px;
+  }
+}
+
+/* Challenge System Styles */
+
+.dashboard {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  color: var(--text-h);
+}
+
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.dashboardControls {
+  display: flex;
+  gap: 12px;
+}
+
+.dashboardControls input, .dashboardControls select {
+  padding: 8px 12px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-h);
+}
+
+.dashboardContent {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+}
+
+.challengeList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.challengeCard {
+  background: var(--social-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.2s;
+}
+
+.challengeCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.challengeCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.voteButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--code-bg);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+.voteButtons button {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.voteButtons button:hover {
+  color: var(--accent);
+}
+
+.solveBtn {
+  align-self: flex-start;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.leaderboard {
+  background: var(--social-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.leaderboard table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.leaderboard th, .leaderboard td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.challengeSidebar {
+  padding: 16px;
+  border-left: 1px solid var(--border);
+  background: var(--bg);
+  overflow-y: auto;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  margin-bottom: 16px;
+  padding: 0;
+}
+
+.submitBtn {
+  padding: 4px 12px;
+  background: #147d3f;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.submissionFeedback {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.submissionFeedback.success {
+  background: rgba(20, 125, 63, 0.1);
+  border-color: rgba(20, 125, 63, 0.3);
+  color: #147d3f;
+}
+
+.submissionFeedback.failure {
+  background: rgba(180, 35, 24, 0.1);
+  border-color: rgba(180, 35, 24, 0.3);
+  color: #b42318;
+}
+
+.progress {
+  height: 8px;
+  background: var(--code-bg);
+  border-radius: 4px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 900px) {
+  .dashboardContent {
+    grid-template-columns: 1fr;
   }
 }
