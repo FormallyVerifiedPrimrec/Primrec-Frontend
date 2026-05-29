@@ -5,7 +5,7 @@ import { Markdown } from "./Markdown";
 interface CreateChallengeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (challenge: Omit<Challenge, "id" | "votes" | "createdAt" | "creatorId">) => void;
+  onCreate: (challenge: Omit<Challenge, "id" | "votes" | "userVote" | "createdAt" | "creatorId">) => void;
 }
 
 export function CreateChallengeModal({

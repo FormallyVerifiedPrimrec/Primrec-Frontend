@@ -16,8 +16,37 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [pendingVoteIds, setPendingVoteIds] = useState<Record<string, boolean>>({});
 
   const [error, setError] = useState<string | null>(null);
+
+  const sortChallenges = useCallback((items: Challenge[], sort: "votes" | "date") => {
+    return [...items].sort((a, b) => {
+      if (sort === "votes") {
+        return b.votes - a.votes || b.createdAt - a.createdAt;
+      }
+      return b.createdAt - a.createdAt;
+    });
+  }, []);
+
+  const applyVoteLocally = useCallback((
+    items: Challenge[],
+    challengeId: string,
+    nextVote: -1 | 0 | 1
+  ) => {
+    return items.map((challenge) => {
+      if (challenge.id !== challengeId) return challenge;
+
+      const previousVote = challenge.userVote;
+      const voteDelta = nextVote - previousVote;
+
+      return {
+        ...challenge,
+        userVote: nextVote,
+        votes: challenge.votes + voteDelta,
+      };
+    });
+  }, []);
 
   const loadData = useCallback(async () => {
     try {
@@ -31,7 +60,7 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
       
       const authUser = await supabase.auth.getUser();
       
-      setChallenges(fetchedChallenges);
+      setChallenges(sortChallenges(fetchedChallenges, sortBy));
       setUsers(fetchedUsers);
       setCurrentUserId(authUser.data.user?.id || null);
     } catch (err: any) {
@@ -46,26 +75,31 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
     loadData();
   }, [loadData]);
 
-  const handleUpvote = async (id: string) => {
-    try {
-      await challengeService.upvote(id);
-      loadData();
-    } catch (err) {
-      console.error("Upvote error:", err);
-    }
-  };
+  const handleVote = async (id: string, nextVote: -1 | 0 | 1) => {
+    if (pendingVoteIds[id]) return;
 
-  const handleDownvote = async (id: string) => {
+    const snapshot = challenges;
+    setPendingVoteIds((current) => ({ ...current, [id]: true }));
+
+    const updated = applyVoteLocally(snapshot, id, nextVote);
+    setChallenges(sortChallenges(updated, sortBy));
+
     try {
-      await challengeService.downvote(id);
-      loadData();
+      await challengeService.vote(id, nextVote);
     } catch (err) {
-      console.error("Downvote error:", err);
+      console.error("Vote error:", err);
+      setChallenges(snapshot);
+      setError(err instanceof Error ? err.message : "Vote failed");
+    } finally {
+      setPendingVoteIds((current) => {
+        const { [id]: _ignored, ...rest } = current;
+        return rest;
+      });
     }
   };
 
   const handleCreateChallenge = async (
-    challenge: Omit<Challenge, "id" | "votes" | "createdAt" | "creatorId">,
+    challenge: Omit<Challenge, "id" | "votes" | "userVote" | "createdAt" | "creatorId">,
   ) => {
     await challengeService.createChallenge(challenge);
     setIsModalOpen(false);
@@ -134,8 +168,7 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
                   challenge={challenge}
                   currentUserId={currentUserId}
                   onSolve={onSolve}
-                  onUpvote={handleUpvote}
-                  onDownvote={handleDownvote}
+                  onVote={handleVote}
                 />
               ))
             )}

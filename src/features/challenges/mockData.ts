@@ -11,6 +11,7 @@ plusStep(x, y, previous) = succ(previous);
 plus(x, y) = primrec(plusBase, plusStep);`,
     postcondition: 'plus(x, y) = x + y',
     votes: 42,
+    userVote: 0,
     createdAt: Date.now() - 1000000,
     testCases: [
       { args: [2, 3], expected: 5 },
@@ -31,6 +32,7 @@ multStep(x, y, previous) = plus(previous, x);
 mult(x, y) = primrec(multBase, multStep);`,
     postcondition: 'mult(x, y) = x * y',
     votes: 28,
+    userVote: 0,
     createdAt: Date.now() - 500000,
     testCases: [
       { args: [2, 3], expected: 6 },
@@ -54,6 +56,7 @@ factStep(y, previous) = mult(succ(y), previous);
 fact(n) = primrec(factBase, factStep);`,
     postcondition: 'fact(n) = n!',
     votes: 15,
+    userVote: 0,
     createdAt: Date.now() - 200000,
     testCases: [
       { args: [0], expected: 1 },

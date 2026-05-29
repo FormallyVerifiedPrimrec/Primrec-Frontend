@@ -11,12 +11,8 @@ export class ChallengeService {
     return apiGetChallenges({ sort: by, query })
   }
 
-  async upvote(challengeId: string) {
-    await apiVoteChallenge(challengeId, 1)
-  }
-
-  async downvote(challengeId: string) {
-    await apiVoteChallenge(challengeId, -1)
+  async vote(challengeId: string, voteType: -1 | 0 | 1) {
+    return apiVoteChallenge(challengeId, voteType)
   }
 
   async getById(id: string): Promise<Challenge | undefined> {
@@ -27,7 +23,7 @@ export class ChallengeService {
     }
   }
 
-  async createChallenge(challenge: Omit<Challenge, 'id' | 'votes' | 'createdAt' | 'creatorId'>) {
+  async createChallenge(challenge: Omit<Challenge, 'id' | 'votes' | 'userVote' | 'createdAt' | 'creatorId'>) {
     return apiCreateChallenge({
       title: challenge.title,
       description: challenge.description,

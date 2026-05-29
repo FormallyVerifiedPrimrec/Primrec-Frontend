@@ -13,8 +13,11 @@ async function getAccessToken(): Promise<string> {
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const token = await getAccessToken()
+  const requestPath = API_BASE_URL && !path.startsWith(`${API_BASE_URL}/`) && path !== API_BASE_URL
+    ? `${API_BASE_URL}${path}`
+    : path
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(requestPath, {
     ...init,
     headers: {
       'Content-Type': 'application/json',
@@ -61,7 +64,7 @@ export async function createChallenge(payload: {
   })
 }
 
-export async function voteChallenge(id: string, voteType: 1 | -1): Promise<void> {
+export async function voteChallenge(id: string, voteType: -1 | 0 | 1): Promise<void> {
   await apiFetch<void>(`/api/challenges/${encodeURIComponent(id)}/vote`, {
     method: 'POST',
     body: JSON.stringify({ voteType }),

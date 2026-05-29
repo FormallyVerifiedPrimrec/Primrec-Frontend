@@ -5,14 +5,12 @@ export function ChallengeCard({
   challenge, 
   currentUserId,
   onSolve, 
-  onUpvote, 
-  onDownvote 
+  onVote
 }: { 
   challenge: Challenge; 
   currentUserId: string | null;
   onSolve: (id: string) => void;
-  onUpvote: (id: string) => void;
-  onDownvote: (id: string) => void;
+  onVote: (id: string, voteType: -1 | 0 | 1) => void;
 }) {
   const isCreator = currentUserId === challenge.creatorId;
 
@@ -22,7 +20,7 @@ export function ChallengeCard({
         <h3>{challenge.title}</h3>
         <div className="voteButtons">
           <button 
-            onClick={() => onUpvote(challenge.id)} 
+            onClick={() => onVote(challenge.id, challenge.userVote === 1 ? 0 : 1)} 
             disabled={isCreator}
             title={isCreator ? "Creators cannot vote on their own challenges" : "Upvote"}
             style={{
@@ -34,7 +32,7 @@ export function ChallengeCard({
           </button>
           <span>{challenge.votes}</span>
           <button 
-            onClick={() => onDownvote(challenge.id)} 
+            onClick={() => onVote(challenge.id, challenge.userVote === -1 ? 0 : -1)} 
             disabled={isCreator}
             title={isCreator ? "Creators cannot vote on their own challenges" : "Downvote"}
             style={{
