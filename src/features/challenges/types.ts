@@ -15,6 +15,7 @@ export interface Challenge {
   description: string; // Markdown & LaTeX supported
   templateFunc: string;
   postcondition: string; // Validation logic
+  suggestedSolution?: string; // Hidden from users, used for verification
   testCases: TestCase[];
   votes: number;
   createdAt: number;
