@@ -107,8 +107,19 @@ export function FunctionsPanel({
   const listModel = useMemo(() => {
     const needle = q.trim().toLowerCase();
 
+    // Deduplicate: only keep the LAST definition of a function name.
+    const uniqueFunctions: PrimrecFunction[] = [];
+    const seen = new Set<string>();
+    for (let i = functions.length - 1; i >= 0; i--) {
+      const fn = functions[i];
+      if (!seen.has(fn.name)) {
+        uniqueFunctions.unshift(fn);
+        seen.add(fn.name);
+      }
+    }
+
     // Keep original definition order.
-    const root = functions.filter((fn) => {
+    const root = uniqueFunctions.filter((fn) => {
       if (!hiddenChildren.has(fn.name)) return true;
       return parentNames.has(fn.name);
     });

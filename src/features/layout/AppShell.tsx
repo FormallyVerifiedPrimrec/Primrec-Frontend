@@ -17,11 +17,10 @@ export function AppShell({
   selectedFn,
   parseResult,
   currentChallenge,
+  isCreating,
   submissionResult,
   onSubmit,
   onBack,
-  postcondition,
-  setPostcondition,
   isCreator,
 }: {
   source: string
@@ -34,11 +33,10 @@ export function AppShell({
   selectedFn?: PrimrecFunction
   parseResult: ParseResult
   currentChallenge?: Challenge
+  isCreating: boolean
   submissionResult?: SubmissionResult
   onSubmit?: () => void
   onBack?: () => void
-  postcondition: string
-  setPostcondition: (val: string) => void
   isCreator: boolean
 }) {
   return (
@@ -49,7 +47,8 @@ export function AppShell({
         editorFontSize={editorFontSize}
         setEditorFontSize={setEditorFontSize}
         onSubmit={onSubmit}
-        isChallengeActive={!!currentChallenge}
+        currentChallenge={currentChallenge}
+        isCreating={isCreating}
         isCreator={isCreator}
       />
       <ToolsSidebar
@@ -58,9 +57,9 @@ export function AppShell({
         onSelect={(name) => setSelectedName(name)}
         selectedFn={selectedFn}
         parseResult={parseResult}
-        postcondition={postcondition}
-        setPostcondition={setPostcondition}
         currentChallenge={currentChallenge}
+        isCreating={isCreating}
+        source={source}
         submissionResult={submissionResult}
         onBack={onBack}
       />

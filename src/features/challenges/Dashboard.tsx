@@ -3,15 +3,13 @@ import { ChallengeCard } from "./ChallengeCard";
 import { Leaderboard } from "./Leaderboard";
 import { challengeService } from "./challengeService";
 import { rankedSystem } from "./rankedSystem";
-import { CreateChallengeModal } from "./CreateChallengeModal";
-import type { Challenge, User, CreateChallengePayload } from "./types";
+import type { Challenge, User } from "./types";
 import { supabase } from "../../supabaseClient";
 
-export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
+export function Dashboard({ onSolve, onCreate }: { onSolve: (id: string) => void, onCreate: () => void }) {
   const [activeTab, setActiveTab] = useState<"challenges" | "leaderboard">("challenges");
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<"votes" | "date">("votes");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -98,14 +96,6 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
     }
   };
 
-  const handleCreateChallenge = async (
-    challenge: CreateChallengePayload,
-  ) => {
-    await challengeService.createChallenge(challenge);
-    setIsModalOpen(false);
-    loadData(); // Immediate refresh
-  };
-
   return (
     <div className="dashboard">
       <header className="dashboardHeader">
@@ -148,7 +138,7 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
           <section className="challengeList fullWidth">
             <button
               className="addChallengeBtn"
-              onClick={() => setIsModalOpen(true)}
+              onClick={onCreate}
             >
               + Create Challenge
             </button>
@@ -179,12 +169,6 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
           </section>
         )}
       </div>
-
-      <CreateChallengeModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onCreate={handleCreateChallenge}
-      />
     </div>
   );
 }
