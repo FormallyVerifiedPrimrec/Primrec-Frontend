@@ -9,9 +9,26 @@ export function InsertButtons({
   source: string
 }) {
   const items = [
-    { name: 'id', label: 'id', code: 'id(x) = x;' },
-    { name: 'one', label: 'one', code: 'one() = 1;' },
-    { name: 'double', label: 'double', code: 'double(x) = plus(x, x);' },
+    {
+      name: 'id', label: 'id',
+      code: 'id(x) = x;\n',
+    },
+    {
+      name: 'one', label: 'one',
+      code: 'one() = succ(zero());\n',
+    },
+    {
+      name: 'pred', label: 'pred',
+      code: 'predBase() = zero();\n\npredStep(y, previous) = y;\n\npred(x) = primrec(predBase, predStep);\n',
+    },
+    {
+      name: 'plus', label: 'plus',
+      code: 'plusBase(x) = x;\n\nplusStep(x, y, previous) = succ(previous);\n\nplus(x, y) = primrec(plusBase, plusStep);\n',
+    },
+    {
+      name: 'mult', label: 'mult',
+      code: 'multBase(x) = zero();\n\nmultStep(x, y, previous) = plus(previous, x);\n\nmult(x, y) = primrec(multBase, multStep);\n',
+    },
   ]
 
   function existsInSource(name: string) {

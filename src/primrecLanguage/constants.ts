@@ -7,26 +7,16 @@ export const BUILTIN_SIGNATURES = {
   succ: { name: 'succ', arity: 1, builtin: true },
 } as const;
 
-export const COMPLETION_EXAMPLE = `# Addition
+export const RECURSIVE_FUNCTIONS_EXAMPLE = `# Identity: id(x) = x
 
-plusBase(x) = x;
+id(x) = x;
 
-plusStep(x, y, previous) =
-  succ(previous);
+# Constant 1
 
-plus(x, y) = primrec(plusBase, plusStep);
+one() =
+  succ(zero());
 
-/*
-  Multiplication
-*/
-
-mulBase(x) =
-  zero();
-
-mulStep(x, y, previous) =
-  plus(previous, x);
-
-mul(x, y) = primrec(mulBase, mulStep);
+# Predecessor: pred(succ(x)) = x,  pred(0) = 0
 
 predBase() = zero();
 
@@ -35,6 +25,21 @@ predStep(y, previous) =
 
 pred(x) = primrec(predBase, predStep);
 
-square(x) =
-  mul(x, x);
+# Addition: plus(x, y) = x + y
+
+plusBase(x) = x;
+
+plusStep(x, y, previous) =
+  succ(previous);
+
+plus(x, y) = primrec(plusBase, plusStep);
+
+# Multiplication: mult(x, y) = x * y
+
+multBase(x) = zero();
+
+multStep(x, y, previous) =
+  plus(previous, x);
+
+mult(x, y) = primrec(multBase, multStep);
 `;

@@ -4,7 +4,6 @@ import './App.css'
 import { useLocalStorageState } from './features/editor/useLocalStorageState'
 import { discoverFunctions, type PrimrecFunction } from './features/primrec/functionDiscovery'
 import { AppShell } from './features/layout/AppShell'
-import { COMPLETION_EXAMPLE } from './primrecLanguage/constants'
 import { parsePrimRecProgram } from './primrecLanguage'
 import { Dashboard } from './features/challenges/Dashboard'
 import type { SubmissionResult, Challenge } from './features/challenges/types'
@@ -14,7 +13,7 @@ import { supabase } from './supabaseClient'
 import { Auth } from './features/auth/Auth'
 import { AuthProvider, useAuth } from './features/auth/AuthContext'
 
-const DEFAULT_SOURCE = COMPLETION_EXAMPLE
+const DEFAULT_SOURCE = ''
 
 function AppContent() {
   const { session, isSupabaseLoading, initError } = useAuth()
