@@ -1,9 +1,32 @@
+import { useState } from 'react';
 import type { User } from './types';
 
 export function Leaderboard({ users }: { users: User[] }) {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="leaderboard">
-      <h2>Leaderboard</h2>
+      <div className="leaderboardHeader" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <h2 style={{ margin: 0 }}>Leaderboard</h2>
+        <input
+          type="text"
+          placeholder="Search users..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            padding: '8px 12px',
+            background: 'var(--code-bg)',
+            border: '1px solid var(--border)',
+            borderRadius: '8px',
+            color: 'var(--text-h)',
+            fontSize: '13px'
+          }}
+        />
+      </div>
       <table>
         <thead>
           <tr>
@@ -13,13 +36,25 @@ export function Leaderboard({ users }: { users: User[] }) {
           </tr>
         </thead>
         <tbody>
-          {users.map((user, index) => (
-            <tr key={user.id}>
-              <td>{index + 1}</td>
-              <td>{user.name}</td>
-              <td>{user.score}</td>
+          {filteredUsers.length === 0 ? (
+            <tr>
+              <td colSpan={3} style={{ textAlign: 'center', padding: '20px', color: 'var(--text)' }}>
+                No users found.
+              </td>
             </tr>
-          ))}
+          ) : (
+            filteredUsers.map((user) => {
+              // Find actual rank in the original unfiltered list
+              const actualRank = users.findIndex(u => u.id === user.id) + 1;
+              return (
+                <tr key={user.id}>
+                  <td>{actualRank}</td>
+                  <td>{user.name}</td>
+                  <td>{user.score}</td>
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
     </div>

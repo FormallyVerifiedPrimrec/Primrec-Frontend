@@ -8,6 +8,7 @@ import type { Challenge, User } from "./types";
 import { supabase } from "../../supabaseClient";
 
 export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
+  const [activeTab, setActiveTab] = useState<"challenges" | "leaderboard">("challenges");
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<"votes" | "date">("votes");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,7 +36,7 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
       setCurrentUserId(authUser.data.user?.id || null);
     } catch (err: any) {
       console.error("Dashboard data load error:", err);
-      setError(err.message || "Failed to load challenges");
+      setError(err.message || "Failed to load data");
     } finally {
       setIsLoading(false);
     }
@@ -43,7 +44,7 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
 
   useEffect(() => {
     loadData();
-  }, [loadData]); // Removed voted from deps to avoid extra reloads, handle re-load in vote handlers
+  }, [loadData]);
 
   const handleUpvote = async (id: string) => {
     try {
@@ -74,57 +75,76 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
   return (
     <div className="dashboard">
       <header className="dashboardHeader">
-        <h1>Primrec Challenges</h1>
-        <div className="dashboardControls">
-          <input
-            type="text"
-            placeholder="Search challenges..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as "votes" | "date")}
+        <div className="dashboardTabs">
+          <button 
+            className={`tabBtn ${activeTab === 'challenges' ? 'active' : ''}`}
+            onClick={() => setActiveTab('challenges')}
           >
-            <option value="votes">Top Voted</option>
-            <option value="date">Newest</option>
-          </select>
+            Challenges
+          </button>
+          <button 
+            className={`tabBtn ${activeTab === 'leaderboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('leaderboard')}
+          >
+            Leaderboard
+          </button>
         </div>
+
+        {activeTab === 'challenges' && (
+          <div className="dashboardControls">
+            <input
+              type="text"
+              placeholder="Search challenges..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as "votes" | "date")}
+            >
+              <option value="votes">Top Voted</option>
+              <option value="date">Newest</option>
+            </select>
+          </div>
+        )}
       </header>
 
-      <div className="dashboardContent">
-        <section className="challengeList">
-          <button
-            className="addChallengeBtn"
-            onClick={() => setIsModalOpen(true)}
-          >
-            + Create Challenge
-          </button>
-          {error && (
-            <div className="empty" style={{ color: '#b42318', background: 'rgba(180, 35, 24, 0.1)', padding: '12px', borderRadius: '8px' }}>
-              Error: {error}
-            </div>
-          )}
-          {isLoading && challenges.length === 0 ? (
-            <div className="empty">Loading challenges...</div>
-          ) : challenges.length === 0 ? (
-            <div className="empty">No challenges found.</div>
-          ) : (
-            challenges.map((challenge) => (
-              <ChallengeCard
-                key={challenge.id}
-                challenge={challenge}
-                currentUserId={currentUserId}
-                onSolve={onSolve}
-                onUpvote={handleUpvote}
-                onDownvote={handleDownvote}
-              />
-            ))
-          )}
-        </section>
-        <aside className="leaderboardSection">
-          <Leaderboard users={users} />
-        </aside>
+      <div className="dashboardContent singleColumn">
+        {activeTab === 'challenges' ? (
+          <section className="challengeList fullWidth">
+            <button
+              className="addChallengeBtn"
+              onClick={() => setIsModalOpen(true)}
+            >
+              + Create Challenge
+            </button>
+            {error && (
+              <div className="empty" style={{ color: '#b42318', background: 'rgba(180, 35, 24, 0.1)', padding: '12px', borderRadius: '8px' }}>
+                Error: {error}
+              </div>
+            )}
+            {isLoading && challenges.length === 0 ? (
+              <div className="empty">Loading challenges...</div>
+            ) : challenges.length === 0 ? (
+              <div className="empty">No challenges found.</div>
+            ) : (
+              challenges.map((challenge) => (
+                <ChallengeCard
+                  key={challenge.id}
+                  challenge={challenge}
+                  currentUserId={currentUserId}
+                  onSolve={onSolve}
+                  onUpvote={handleUpvote}
+                  onDownvote={handleDownvote}
+                />
+              ))
+            )}
+          </section>
+        ) : (
+          <section className="leaderboardSection fullWidth">
+            <Leaderboard users={users} />
+          </section>
+        )}
       </div>
 
       <CreateChallengeModal

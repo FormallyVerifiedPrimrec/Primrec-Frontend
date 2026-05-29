@@ -830,13 +830,20 @@
   background: var(--social-bg);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 16px;
+  padding: 24px;
+  width: 100%;
 }
 
 .leaderboard table {
-  width: 100%;
+  width: 500px;
   border-collapse: collapse;
   margin-top: 12px;
+}
+
+.leaderboardSection.fullWidth {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 .leaderboard th,
@@ -904,6 +911,57 @@
   height: 100%;
   background: currentColor;
   transition: width 0.3s ease;
+}
+
+.dashboardTabs {
+  display: flex;
+  gap: 4px;
+  background: var(--social-bg);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.tabBtn {
+  background: none;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 8px;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tabBtn:hover {
+  color: var(--text-h);
+}
+
+.tabBtn.active {
+  background: var(--bg);
+  color: var(--accent);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dashboardContent.singleColumn {
+  display: block;
+}
+
+.challengeList.fullWidth,
+.leaderboardSection.fullWidth {
+  width: 100%;
+  max-width: 100%;
+}
+
+.challengeCard {
+  width: 100%;
+  min-height: fit-content;
+}
+
+.challengeCard:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
 }
 
 @media (max-width: 900px) {
