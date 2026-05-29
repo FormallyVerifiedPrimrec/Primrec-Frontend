@@ -54,7 +54,7 @@ npm run preview    # Preview production build locally
 docker compose up --build frontend
 ```
 
-The frontend is served by nginx on port 8080 with SPA fallback. API requests to `/api/` are proxied to the challenges backend.
+The frontend is served by Caddy on port 80/443 with automatic HTTPS (Let's Encrypt). SPA fallback routes all non-API paths to `index.html`. API requests to `/api/` and `/solver/` are proxied to the respective backends.
 
 ## Project Structure
 
