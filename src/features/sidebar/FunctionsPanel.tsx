@@ -268,12 +268,15 @@ export function FunctionsPanel({
                       isOpen ? `Collapse ${fn.name}` : `Expand ${fn.name}`
                     }
                     aria-expanded={isOpen}
-                    onClick={() =>
+                    onClick={() => {
+                      if (isOpen && parent && (parent.base === selectedName || parent.step === selectedName)) {
+                        onSelect(fn.name)
+                      }
                       setExpanded((prev) => ({
                         ...prev,
                         [fn.name]: !prev[fn.name],
                       }))
-                    }
+                    }}
                   >
                     {isOpen ? "▾" : "▸"}
                   </button>
