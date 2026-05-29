@@ -1,9 +1,16 @@
+import { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../../supabaseClient'
+import { ThemePicker } from '../themes/ThemePicker'
+import { useTheme } from '../themes/ThemeContext'
 
 export function ProtectedLayout() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { theme } = useTheme()
+  const [pickerOpen, setPickerOpen] = useState(false)
+
+  const c = theme.colors.accent
 
   return (
     <div className="appRoot">
@@ -24,6 +31,14 @@ export function ProtectedLayout() {
               Challenges
             </button>
             <button
+              className="themeToggleBtn"
+              onClick={() => setPickerOpen(true)}
+              aria-label="Open theme picker"
+              title="Theme"
+            >
+              <span className="themeToggleSwatch" style={{ background: c }} />
+            </button>
+            <button
               className="navBtn"
               onClick={() => supabase.auth.signOut()}
               style={{ color: 'var(--danger)' }}
@@ -37,6 +52,8 @@ export function ProtectedLayout() {
       <main className="appMain">
         <Outlet />
       </main>
+
+      {pickerOpen && <ThemePicker onClose={() => setPickerOpen(false)} />}
     </div>
   )
 }

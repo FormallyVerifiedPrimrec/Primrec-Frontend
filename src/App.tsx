@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 import { AuthProvider, useAuth } from './features/auth/AuthContext'
+import { ThemeProvider } from './features/themes/ThemeContext'
 import { Auth } from './features/auth/Auth'
 import { ProtectedLayout } from './features/layout/ProtectedLayout'
 import { EditorPage } from './features/editor/EditorPage'
@@ -52,11 +53,13 @@ function AppContent() {
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <div className="appContainer">
-          <AppContent />
-        </div>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <div className="appContainer">
+            <AppContent />
+          </div>
+        </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   )
 }

@@ -2,7 +2,9 @@
   /* Dark mode (forced) */
   --text: #9ca3af;
   --text-h: #f3f4f6;
+  --text-muted: #6b7280;
   --bg: #16171d;
+  --bg-secondary: #1a1b23;
   --border: #2e303a;
   --code-bg: #1f2028;
 

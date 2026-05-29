@@ -1120,3 +1120,142 @@
   font-size: 13px;
   overflow-y: auto;
 }
+
+.themeToggleBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0 4px;
+  transition: border-color 0.2s;
+}
+
+.themeToggleBtn:hover {
+  border-color: var(--accent);
+}
+
+.themeToggleSwatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.themePickerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.themePicker {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  width: 380px;
+  max-width: 90vw;
+  box-shadow: var(--shadow);
+}
+
+.themePickerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.themePickerTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.themeGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.themeRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.themeRowLabel {
+  width: 60px;
+  font-size: 13px;
+  color: var(--text);
+  text-transform: capitalize;
+  flex-shrink: 0;
+}
+
+.themeSwatches {
+  display: flex;
+  gap: 10px;
+}
+
+.themeSwatch {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: border-color 0.2s, transform 0.15s;
+  padding: 0;
+}
+
+.themeSwatch:hover {
+  transform: scale(1.05);
+}
+
+.themeSwatch.active {
+  border-color: var(--accent);
+}
+
+.themeSwatchColor {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+}
+
+.themeSwatchCheck {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  font-size: 12px;
+  color: var(--text-h);
+  font-weight: 700;
+}
+
+.themeOledToggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.themeOledToggle input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
