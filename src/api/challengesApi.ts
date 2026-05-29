@@ -41,9 +41,11 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T
 }
 
-export async function getChallenges(params: { sort: 'votes' | 'date'; query?: string }): Promise<Challenge[]> {
+export async function getChallenges(params: { sort: 'votes' | 'date'; query?: string; limit?: number; offset?: number }): Promise<Challenge[]> {
   const qs = new URLSearchParams({ sort: params.sort })
   if (params.query) qs.set('query', params.query)
+  if (params.limit != null) qs.set('limit', String(params.limit))
+  if (params.offset != null) qs.set('offset', String(params.offset))
   return apiFetch<Challenge[]>(`/api/challenges?${qs.toString()}`)
 }
 
@@ -78,7 +80,9 @@ export async function saveSubmission(id: string, payload: { success: boolean; so
   })
 }
 
-export async function getLeaderboard(): Promise<User[]> {
-  const raw = await apiFetch<Array<{ id: string; name: string; score: number }>>(`/api/leaderboard`)
-  return raw.map((u) => ({ id: u.id, name: u.name, score: u.score }))
+export async function getLeaderboard(params?: { limit?: number; offset?: number }): Promise<User[]> {
+  const qs = new URLSearchParams()
+  if (params?.limit != null) qs.set('limit', String(params.limit))
+  if (params?.offset != null) qs.set('offset', String(params.offset))
+  return apiFetch<User[]>(`/api/leaderboard?${qs.toString()}`)
 }

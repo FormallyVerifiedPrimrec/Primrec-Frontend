@@ -51,8 +51,8 @@ export class RankedSystem {
     }
   }
 
-  async getUsersSorted(): Promise<User[]> {
-    return getLeaderboard()
+  async getUsersSorted(limit?: number, offset?: number): Promise<User[]> {
+    return getLeaderboard({ limit, offset })
   }
 }
 

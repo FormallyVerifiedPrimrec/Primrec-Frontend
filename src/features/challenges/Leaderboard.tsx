@@ -1,11 +1,23 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { User } from './types';
 
 export function Leaderboard({ users }: { users: User[] }) {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const rankMap = useMemo(() => {
+    const map = new Map<string, number>();
+    users.forEach((u, i) => map.set(u.id, i + 1));
+    return map;
+  }, [users]);
+
+  const filteredUsers = useMemo(
+    () =>
+      searchTerm
+        ? users.filter((u) =>
+            u.name.toLowerCase().includes(searchTerm.toLowerCase()),
+          )
+        : users,
+    [users, searchTerm],
   );
 
   return (
@@ -23,7 +35,7 @@ export function Leaderboard({ users }: { users: User[] }) {
             border: '1px solid var(--border)',
             borderRadius: '8px',
             color: 'var(--text-h)',
-            fontSize: '13px'
+            fontSize: '13px',
           }}
         />
       </div>
@@ -44,11 +56,10 @@ export function Leaderboard({ users }: { users: User[] }) {
             </tr>
           ) : (
             filteredUsers.map((user) => {
-              // Find actual rank in the original unfiltered list
-              const actualRank = users.findIndex(u => u.id === user.id) + 1;
+              const rank = rankMap.get(user.id) ?? 0;
               return (
                 <tr key={user.id}>
-                  <td>{actualRank}</td>
+                  <td>{rank}</td>
                   <td>{user.name}</td>
                   <td>{user.score}</td>
                 </tr>
