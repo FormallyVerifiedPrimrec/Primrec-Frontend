@@ -29,5 +29,3 @@ export interface SubmissionResult {
   passedCount: number;
   totalCount: number;
 }
-
-export type ViewType = 'dashboard' | 'editor';
