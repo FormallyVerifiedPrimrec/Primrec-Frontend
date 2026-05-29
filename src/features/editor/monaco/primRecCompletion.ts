@@ -1,6 +1,8 @@
-import { BUILTIN_SIGNATURES } from '../../../primrecLanguage/constants'
-import { lex } from '../../../primrecLanguage/lexer'
-import type { FunctionSignature, Token } from '../../../primrecLanguage/types'
+// Ported from the PrimRecEditor reference editor (src/editor/primRecCompletion.ts) with only
+// import paths adjusted for the frontend folder layout.
+import { BUILTIN_SIGNATURES } from '../../../primrecLanguage/constants';
+import { lex } from '../../../primrecLanguage/primrecParsing/lexer';
+import type { FunctionSignature, Token } from '../../../primrecLanguage/types';
 
 export type PrimRecDependencyRole = 'base' | 'step';
 

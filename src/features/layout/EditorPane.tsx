@@ -1,7 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react'
 import { useMemo } from 'react'
 
-import { parseSyntax } from '../../primrecLanguage/parser'
+import { parseSyntax } from '../../primrecLanguage/primrecParsing/parser'
 import { InsertButtons } from '../editor/InsertButtons'
 import { PrimrecEditor } from '../editor/PrimrecEditor'
 import type { Challenge } from '../challenges/types'

@@ -1,8 +1,12 @@
+// Sidebar panel for turning the current editor solution into a challenge. The
+// solution is verified with the real solver before publishing.
 import { useState, useMemo } from "react";
 import { Markdown } from "../challenges/Markdown";
-import { VerificationService } from "../challenges/verificationService";
-import { parsePrimRecProgram } from "../../primrecLanguage";
-import type { NormalizedFunction } from "../../primrecLanguage/types";
+import {
+  analyzeProgram,
+  functionsWithoutPostcondition,
+  verifyProgramOnce,
+} from "../verification";
 import { challengeService } from "../challenges/challengeService";
 
 interface CreateChallengePanelProps {
@@ -23,8 +27,8 @@ export function CreateChallengePanel({
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const parseResult = useMemo(() => parsePrimRecProgram(source), [source]);
-  const availableFunctions = parseResult.program?.functions ?? [];
+  const analysis = useMemo(() => analyzeProgram(source), [source]);
+  const availableFunctions = analysis.functions;
 
   const handleCreate = async () => {
     if (!title || !description || !targetFunctionName || !source) return;
@@ -33,44 +37,35 @@ export function CreateChallengePanel({
     setError(null);
 
     try {
-      if (parseResult.diagnostics.length > 0) {
+      if (analysis.hasErrors || !analysis.program) {
         setError("Solution has syntax errors.");
         setIsVerifying(false);
         return;
       }
 
-      if (!parseResult.program) {
-        setError("Failed to parse program.");
-        setIsVerifying(false);
-        return;
-      }
-
-      const targetFn = parseResult.program.functions.find(f => f.name === targetFunctionName);
+      const targetFn = analysis.functions.find(f => f.name === targetFunctionName);
       if (!targetFn) {
         setError(`Target function '${targetFunctionName}' not found.`);
         setIsVerifying(false);
         return;
       }
 
-      if (!targetFn.postcondition) {
+      if (!targetFn.hasPostcondition) {
         setError(`Target function '${targetFunctionName}' must have a postcondition.`);
         setIsVerifying(false);
         return;
       }
 
       // Check if all functions have postconditions
-      const missingPost = parseResult.program.functions.find((f: NormalizedFunction) => !f.postcondition);
-      if (missingPost) {
-        setError(`Function '${missingPost.name}' is missing a postcondition.`);
+      const missingPost = functionsWithoutPostcondition(analysis);
+      if (missingPost.length > 0) {
+        setError(`Function '${missingPost[0]}' is missing a postcondition.`);
         setIsVerifying(false);
         return;
       }
 
-      // Verify the solution
-      const verificationService = VerificationService.getInstance();
-      verificationService.reset();
-      
-      const result = await verificationService.verifyFunction(targetFunctionName, parseResult.program, () => {});
+      // Verify the solution with the real solver (single-pipeline).
+      const result = await verifyProgramOnce(source, targetFunctionName);
 
       if (result.status !== 'verified') {
         setError(`Verification failed: ${result.message || 'Unknown error'}`);
@@ -81,15 +76,15 @@ export function CreateChallengePanel({
       await challengeService.createChallenge({
         title,
         description,
-        postcondition: targetFn.postcondition,
+        postcondition: targetFn.postconditionText ?? targetFunctionName,
         suggestedSolution: source,
         templateFunc: `// Implement ${targetFunctionName}\n`,
         testCases: [],
       });
 
       onSuccess();
-    } catch (err: any) {
-      setError(err.message || "An unexpected error occurred.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred.");
     } finally {
       setIsVerifying(false);
     }
@@ -164,15 +159,16 @@ export function CreateChallengePanel({
             <option value="">Select entry function...</option>
             {availableFunctions.map(f => (
               <option key={f.name} value={f.name}>
-                {f.name} {f.postcondition ? '✓' : '(needs postcondition)'}
+                {f.name} {f.hasPostcondition ? '✓' : '(needs postcondition)'}
               </option>
             ))}
           </select>
-          {targetFunctionName && availableFunctions.find(f => f.name === targetFunctionName)?.postcondition && (
-            <div style={{ fontSize: '11px', color: 'var(--accent)', marginTop: '4px' }}>
-              Goal: {availableFunctions.find(f => f.name === targetFunctionName)?.postcondition}
-            </div>
-          )}
+          {targetFunctionName &&
+            availableFunctions.find(f => f.name === targetFunctionName)?.postconditionText && (
+              <pre style={{ fontSize: '11px', color: 'var(--accent)', marginTop: '4px', whiteSpace: 'pre-wrap' }}>
+                {availableFunctions.find(f => f.name === targetFunctionName)?.postconditionText}
+              </pre>
+            )}
         </div>
 
         {error && (

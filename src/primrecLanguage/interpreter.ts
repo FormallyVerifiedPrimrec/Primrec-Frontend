@@ -1,7 +1,14 @@
+// Ported 1:1 from the PrimRecEditor reference implementation (primrecLanguage).
+// This brings the up-to-date parser, validator, postcondition support and
+// SMT-LIB Horn conversion into the frontend. Do not diverge from the editor
+// copy without porting the change back there as well.
+
+import { PrimitiveRecursionIdiomRecognizer } from './idioms';
 import type {
   CoreExpression,
   NormalizedFunction,
   NormalizedProgram,
+  PrimitiveRecursionIdiom,
 } from './types';
 
 /**
@@ -71,7 +78,7 @@ const SUCC_FN: CompiledFunction = (args) => toSafeNatural(args[0] + 1);
 class CompiledProgramImpl implements CompiledProgram {
   private readonly definitions = new Map<string, NormalizedFunction>();
   private readonly compiled = new Map<string, CompiledFunction>();
-  private readonly additionCache = new Map<string, boolean>();
+  private readonly idioms: PrimitiveRecursionIdiomRecognizer;
   private readonly memoize: boolean;
 
   constructor(program: NormalizedProgram, options: PreprocessOptions) {
@@ -79,6 +86,7 @@ class CompiledProgramImpl implements CompiledProgram {
     for (const definition of program.functions) {
       this.definitions.set(definition.name, definition);
     }
+    this.idioms = new PrimitiveRecursionIdiomRecognizer(this.definitions);
   }
 
   evaluate(functionName: string, args: number[]): number {
@@ -143,6 +151,11 @@ class CompiledProgramImpl implements CompiledProgram {
 
   private compileExpression(expression: CoreExpression): CompiledFunction {
     switch (expression.kind) {
+      case 'Number': {
+        const value = toSafeNatural(expression.value);
+        return () => value;
+      }
+
       case 'Zero':
         return ZERO_FN;
 
@@ -189,7 +202,10 @@ class CompiledProgramImpl implements CompiledProgram {
     const base = this.resolve(expression.base);
     const step = this.resolve(expression.step);
 
-    const recognized = this.recognizeClosedForm(definition, expression, base);
+    const idiom = this.idioms.recognize(definition, expression);
+    const recognized = idiom
+      ? this.compileRecognizedIdiom(idiom, base)
+      : null;
     if (recognized) {
       return recognized;
     }
@@ -204,151 +220,28 @@ class CompiledProgramImpl implements CompiledProgram {
   // structure only and is provably equivalent; anything unrecognised falls back
   // to the (correct) generic loop, so results never change.
   // ---------------------------------------------------------------------------
-  private recognizeClosedForm(
-    definition: NormalizedFunction,
-    expression: Extract<CoreExpression, { kind: 'PrimitiveRecursion' }>,
+  private compileRecognizedIdiom(
+    idiom: PrimitiveRecursionIdiom,
     base: CompiledFunction,
   ): CompiledFunction | null {
-    const arity = definition.arity; // f(x1..xn, count) -> arity = n + 1
-    const n = arity - 1; // number of fixed arguments
-    const counterIndex = n; // index of `y` in the step frame
-    const previousIndex = n + 1; // index of `previous` in the step frame
+    const counterIndex = idiom.counterIndex;
+    switch (idiom.kind) {
+      case 'Predecessor':
+        return (args) =>
+          args[counterIndex] === 0 ? base(args) : args[counterIndex] - 1;
 
-    const stepDefinition = this.definitions.get(expression.step);
-    if (!stepDefinition) {
-      return null; // step is a builtin; not worth special-casing
-    }
-    const stepBody = stepDefinition.expression;
-
-    // P3 — step returns the recursion counter `y` directly => predecessor:
-    //   f(fixed, 0) = base(fixed);  f(fixed, k) = k - 1   (k >= 1)
-    if (stepBody.kind === 'Projection' && stepBody.index === counterIndex) {
-      return (args) => (args[n] === 0 ? base(args) : args[n] - 1);
-    }
-
-    // P1 — step ignores both `previous` and the counter => constant after the
-    // first step:  f(fixed, 0) = base(fixed);  f(fixed, k) = step(fixed).
-    // Covers isZero, ifZero, and similar "select" helpers.
-    if (
-      !referencesIndex(stepBody, previousIndex) &&
-      !referencesIndex(stepBody, counterIndex)
-    ) {
-      const stepValue = this.compileExpression(stepBody);
-      return (args) => (args[n] === 0 ? base(args) : stepValue(args));
-    }
-
-    // P2 — step is `previous + C`, with C independent of `previous` and the
-    // counter => linear recurrence:  f(fixed, k) = base(fixed) + k * C(fixed).
-    // Covers addition (C = 1) and multiplication (C = a fixed argument).
-    const linear = this.analyzeLinear(stepBody, previousIndex, counterIndex);
-    if (linear) {
-      const constantTerm = linear;
-      return (args) =>
-        toSafeNatural(base(args) + args[n] * constantTerm(args));
-    }
-
-    return null;
-  }
-
-  /**
-   * If `expression` (a step body) is equivalent to `previous + C` for some `C`
-   * that depends only on the fixed arguments, returns a closure computing `C`;
-   * otherwise null. Used to detect linear recurrences.
-   */
-  private analyzeLinear(
-    expression: CoreExpression,
-    previousIndex: number,
-    counterIndex: number,
-  ): CompiledFunction | null {
-    switch (expression.kind) {
-      case 'Projection':
-        // Bare `previous` => previous + 0.
-        return expression.index === previousIndex ? ZERO_FN : null;
-
-      case 'Successor': {
-        // succ(previous + C) => previous + (C + 1).
-        const inner = this.analyzeLinear(
-          expression.argument,
-          previousIndex,
-          counterIndex,
-        );
-        if (!inner) return null;
-        return (args) => inner(args) + 1;
+      case 'ConstantAfterFirst': {
+        const stepValue = this.compileExpression(idiom.expression);
+        return (args) =>
+          args[counterIndex] === 0 ? base(args) : stepValue(args);
       }
 
-      case 'Composition': {
-        // add(previous + C, D) with D independent => previous + (C + D).
-        if (expression.args.length !== 2 || !this.isAddition(expression.callee)) {
-          return null;
-        }
-        const [left, right] = expression.args;
-        const leftLinear = this.analyzeLinear(left, previousIndex, counterIndex);
-        if (
-          leftLinear &&
-          isIndependent(right, previousIndex, counterIndex)
-        ) {
-          const other = this.compileExpression(right);
-          return (args) => leftLinear(args) + other(args);
-        }
-        const rightLinear = this.analyzeLinear(
-          right,
-          previousIndex,
-          counterIndex,
-        );
-        if (
-          rightLinear &&
-          isIndependent(left, previousIndex, counterIndex)
-        ) {
-          const other = this.compileExpression(left);
-          return (args) => rightLinear(args) + other(args);
-        }
-        return null;
+      case 'LinearRecurrence': {
+        const increment = this.compileExpression(idiom.increment);
+        return (args) =>
+          toSafeNatural(base(args) + args[counterIndex] * increment(args));
       }
-
-      default:
-        return null;
     }
-  }
-
-  /**
-   * Recognises the canonical addition definition (used to fold multiplication
-   * into a closed form). Structural match only: a binary primrec whose base is
-   * the identity projection and whose step is `succ(previous)`.
-   */
-  private isAddition(name: string): boolean {
-    const cached = this.additionCache.get(name);
-    if (cached !== undefined) return cached;
-    this.additionCache.set(name, false); // break any accidental re-entry
-
-    let result = false;
-    const definition = this.definitions.get(name);
-    if (
-      definition &&
-      definition.arity === 2 &&
-      definition.expression.kind === 'PrimitiveRecursion'
-    ) {
-      const recursion = definition.expression;
-      const baseDefinition = this.definitions.get(recursion.base);
-      const stepDefinition = this.definitions.get(recursion.step);
-
-      const baseIsIdentity =
-        !!baseDefinition &&
-        baseDefinition.arity === 1 &&
-        baseDefinition.expression.kind === 'Projection' &&
-        baseDefinition.expression.index === 0;
-
-      const stepIsSuccPrevious =
-        !!stepDefinition &&
-        stepDefinition.arity === 3 &&
-        stepDefinition.expression.kind === 'Successor' &&
-        stepDefinition.expression.argument.kind === 'Projection' &&
-        stepDefinition.expression.argument.index === 2;
-
-      result = baseIsIdentity && stepIsSuccPrevious;
-    }
-
-    this.additionCache.set(name, result);
-    return result;
   }
 
   private assertArity(functionName: string, expected: number, args: number[]) {
@@ -405,31 +298,4 @@ function withMemo(fn: CompiledFunction): CompiledFunction {
     }
     return value;
   };
-}
-
-/** True if `expression` reads the given argument index anywhere. */
-function referencesIndex(expression: CoreExpression, index: number): boolean {
-  switch (expression.kind) {
-    case 'Projection':
-      return expression.index === index;
-    case 'Successor':
-      return referencesIndex(expression.argument, index);
-    case 'Composition':
-      return expression.args.some((arg) => referencesIndex(arg, index));
-    case 'Zero':
-    case 'PrimitiveRecursion':
-      return false;
-  }
-}
-
-/** True if `expression` reads neither the `previous` nor the counter slot. */
-function isIndependent(
-  expression: CoreExpression,
-  previousIndex: number,
-  counterIndex: number,
-): boolean {
-  return (
-    !referencesIndex(expression, previousIndex) &&
-    !referencesIndex(expression, counterIndex)
-  );
 }

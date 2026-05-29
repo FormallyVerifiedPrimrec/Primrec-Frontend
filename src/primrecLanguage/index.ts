@@ -1,6 +1,20 @@
-import { parseSyntax } from './parser';
-import { containsPosition } from './ranges';
-import { validateAndNormalize } from './validation';
+// Ported 1:1 from the PrimRecEditor reference implementation (primrecLanguage).
+// This brings the up-to-date parser, validator, postcondition support and
+// SMT-LIB Horn conversion into the frontend. Do not diverge from the editor
+// copy without porting the change back there as well.
+
+import { parseSyntax } from './primrecParsing/parser';
+import { containsPosition } from './primrecParsing/ranges';
+import { validateAndNormalize } from './primrecParsing/validation';
+import {
+  parsePostconditions,
+  stripPostconditionSectionsForPrimRec,
+  type PostconditionParseResult,
+} from './postconditions';
+import {
+  completeProgramToHornSmt2,
+  completeProgramToHornSmt2Parts,
+} from './smt2conversion';
 import type {
   Expression,
   FunctionDefinition,
@@ -9,8 +23,14 @@ import type {
   ProgramAst,
 } from './types';
 
+export interface CompleteParseResult {
+  primrec: ParseResult;
+  postconditions: PostconditionParseResult;
+  diagnostics: ParseResult['diagnostics'];
+}
+
 export function parsePrimRecProgram(source: string): ParseResult {
-  const syntax = parseSyntax(source);
+  const syntax = parseSyntax(stripPostconditionSectionsForPrimRec(source));
   const semantic = validateAndNormalize(syntax.ast);
   const diagnostics = [...syntax.diagnostics, ...semantic.diagnostics];
 
@@ -24,8 +44,33 @@ export function parsePrimRecProgram(source: string): ParseResult {
   };
 }
 
+export function parseCompleteProgram(source: string): CompleteParseResult {
+  const primrec = parsePrimRecProgram(source);
+  const postconditions = parsePostconditions(source, getFunctionSignatures(source));
+
+  return {
+    primrec,
+    postconditions,
+    diagnostics: [...primrec.diagnostics, ...postconditions.diagnostics],
+  };
+}
+
+export function sourceToHornSmt2Parts(source: string): string[] {
+  return completeProgramToHornSmt2Parts(parseCompleteProgram(source));
+}
+
+export function sourceToHornSmt2(source: string): string {
+  return completeProgramToHornSmt2(parseCompleteProgram(source));
+}
+
+export function printToSmt2(source: string): string {
+  const smt2 = sourceToHornSmt2(source);
+  console.log(smt2);
+  return smt2;
+}
+
 export function getFunctionSignatures(source: string): FunctionSignature[] {
-  const parsed = parseSyntax(source);
+  const parsed = parseSyntax(stripPostconditionSectionsForPrimRec(source));
   return parsed.ast.definitions.map((definition) => ({
     name: definition.name,
     arity: definition.params.length,
@@ -39,7 +84,7 @@ export function getSemanticHover(
   line: number,
   column: number,
 ): string | undefined {
-  const parsed = parseSyntax(source);
+  const parsed = parseSyntax(stripPostconditionSectionsForPrimRec(source));
   const definition = parsed.ast.definitions.find((item) =>
     containsPosition(item.nameRange, line, column),
   );
@@ -79,7 +124,7 @@ function findExpressionHover(
 
     case 'NumberLiteral':
       if (containsPosition(expression.range, line, column)) {
-        return `**Natural number literal** \`${expression.raw}\`\n\nExpanded to zero and repeated successor applications in the normalized output.`;
+        return `**Natural number literal** \`${expression.raw}\`\n\nPreserved as a numeric constant in the normalized output.`;
       }
       return undefined;
 
@@ -129,4 +174,17 @@ function formatFunctionHover(definition: FunctionDefinition): string {
 }
 
 export * from './types';
+export {
+  recognizeIdiomsInParseResult,
+  recognizeIdiomsInProgram,
+} from './idioms';
+export {
+  completeProgramToHornSmt2,
+  completeProgramToHornSmt2Parts,
+  postconditionProgramToHornSmt2,
+  postconditionProgramToHornSmt2Parts,
+  primRecProgramToHornSmt2,
+  primRecProgramToHornSmt2Parts,
+} from './smt2conversion';
 export { LANGUAGE_ID } from './constants';
+export * from './postconditions';

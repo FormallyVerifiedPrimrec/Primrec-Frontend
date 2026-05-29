@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parsePrimRecProgram } from '.';
+import { parsePrimRecProgram } from '..';
 
 function codes(source: string) {
   return parsePrimRecProgram(source).diagnostics.map((item) => item.code);
@@ -86,6 +86,17 @@ describe('parsePrimRecProgram diagnostics', () => {
       expect(
         codes('f(x) = x;\ng(x, y) = f(x, y);\nh(x) = f(g(x));'),
       ).toContain('VALIDATION_CALL_ARITY');
+    });
+  });
+
+  describe('numeric literal checks', () => {
+    it('rejects numeric literals outside the safe integer range', () => {
+      const result = parsePrimRecProgram('tooLarge() = 9007199254740992;');
+
+      expect(result.diagnostics.map((item) => item.code)).toContain(
+        'VALIDATION_UNSAFE_NUMBER_LITERAL',
+      );
+      expect(result.program).toBeUndefined();
     });
   });
 

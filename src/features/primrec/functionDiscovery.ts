@@ -1,4 +1,4 @@
-import { parseSyntax } from '../../primrecLanguage/parser'
+import { parseSyntax } from '../../primrecLanguage/primrecParsing/parser'
 
 export type PrimrecFunction = {
   name: string

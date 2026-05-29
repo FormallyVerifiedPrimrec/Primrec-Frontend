@@ -1,4 +1,9 @@
-import type { Diagnostic, SourcePosition, SourceRange, Token } from './types';
+// Ported 1:1 from the PrimRecEditor reference implementation (primrecLanguage).
+// This brings the up-to-date parser, validator, postcondition support and
+// SMT-LIB Horn conversion into the frontend. Do not diverge from the editor
+// copy without porting the change back there as well.
+
+import type { Diagnostic, SourcePosition, SourceRange, Token } from '../types';
 
 export function createPosition(
   offset: number,

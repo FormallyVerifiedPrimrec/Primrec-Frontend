@@ -6,7 +6,8 @@
 		reverse_proxy challenges-backend:8080
 	}
 
-	handle /solver/* {
+	# Strip the /solver prefix so the backend sees its real route (/solve).
+	handle_path /solver/* {
 		reverse_proxy solver-backend:8080
 	}
 

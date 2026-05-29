@@ -1,9 +1,13 @@
+// Create-challenge modal. The suggested solution is verified through the real
+// solver (single-pipeline `verifyProgramOnce`) before the challenge is created.
 import { useState } from "react";
 import type { CreateChallengePayload } from "./types";
 import { Markdown } from "./Markdown";
-import { VerificationService } from "./verificationService";
-import { parsePrimRecProgram } from "../../primrecLanguage";
-import type { NormalizedFunction } from "../../primrecLanguage/types";
+import {
+  analyzeProgram,
+  functionsWithoutPostcondition,
+  verifyProgramOnce,
+} from "../verification";
 
 interface CreateChallengeModalProps {
   isOpen: boolean;
@@ -33,36 +37,28 @@ export function CreateChallengeModal({
     setVerificationError(null);
 
     try {
-      const parseResult = parsePrimRecProgram(newSuggestedSolution);
-      if (parseResult.diagnostics.length > 0) {
+      const analysis = analyzeProgram(newSuggestedSolution);
+      if (analysis.hasErrors || !analysis.program) {
         setVerificationError("Suggested solution has syntax errors.");
         setIsVerifying(false);
         return;
       }
 
-      if (!parseResult.program) {
-        setVerificationError("Failed to parse program.");
+      // Every function in the suggested solution must carry a postcondition.
+      const missingPost = functionsWithoutPostcondition(analysis);
+      if (missingPost.length > 0) {
+        setVerificationError(`Function '${missingPost[0]}' is missing a postcondition.`);
         setIsVerifying(false);
         return;
       }
 
-      // Check if all functions have postconditions
-      const missingPost = parseResult.program.functions.find((f: NormalizedFunction) => !f.postcondition);
-      if (missingPost) {
-        setVerificationError(`Function '${missingPost.name}' is missing a postcondition.`);
-        setIsVerifying(false);
-        return;
-      }
-
-      // Verify the solution
-      const verificationService = VerificationService.getInstance();
-      verificationService.reset();
-      
-      // Determine target function from postcondition or assume first function
+      // Determine the target function from the postcondition, or fall back to
+      // the last defined function (typically the one being solved).
       const match = newPostcondition.match(/^([a-zA-Z_][a-zA-Z0-9_]*)/);
-      const targetName = match ? match[1] : parseResult.program.functions[0].name;
+      const targetName =
+        match?.[1] ?? analysis.functions[analysis.functions.length - 1]?.name ?? "";
 
-      const result = await verificationService.verifyFunction(targetName, parseResult.program, () => {});
+      const result = await verifyProgramOnce(newSuggestedSolution, targetName);
 
       if (result.status !== 'verified') {
         setVerificationError(`Verification failed: ${result.message || 'Unknown error'}`);
@@ -86,7 +82,7 @@ export function CreateChallengeModal({
       setNewSuggestedSolution("");
       setShowPreview(false);
       onClose();
-    } catch (err) {
+    } catch {
       setVerificationError("An unexpected error occurred during verification.");
     } finally {
       setIsVerifying(false);
