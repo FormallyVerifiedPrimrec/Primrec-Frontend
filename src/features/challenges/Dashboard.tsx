@@ -10,7 +10,6 @@ import { supabase } from "../../supabaseClient";
 export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState<"votes" | "date">("votes");
-  const [voted, setVoted] = useState<Record<string, number>>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [users, setUsers] = useState<User[]>([]);

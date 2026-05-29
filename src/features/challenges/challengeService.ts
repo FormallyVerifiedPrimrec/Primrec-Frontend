@@ -3,9 +3,16 @@ import type { Challenge } from './types';
 
 export class ChallengeService {
   async getSorted(by: 'votes' | 'date', query: string = ''): Promise<Challenge[]> {
+    const { data: authData } = await supabase.auth.getUser();
+    const userId = authData.user?.id;
+
+    // We fetch all challenges and the user's specific interaction
     let supabaseQuery = supabase
       .from('challenges')
-      .select('*');
+      .select(`
+        *,
+        user_interactions(vote_type, user_id)
+      `);
 
     if (query) {
       supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
@@ -24,18 +31,26 @@ export class ChallengeService {
       return [];
     }
 
-    return (data || []).map(row => ({
-      id: row.id,
-      creatorId: row.creator_id,
-      title: row.title,
-      description: row.description,
-      templateFunc: row.template_func,
-      postcondition: row.postcondition,
-      suggestedSolution: row.suggested_solution,
-      votes: row.votes,
-      createdAt: new Date(row.created_at).getTime(),
-      testCases: [], // In a real app, these might be in a separate table or JSON column
-    }));
+    return (data || []).map(row => {
+      // Find the interaction for the current user in the joined array
+      const userInteraction = Array.isArray(row.user_interactions) 
+        ? row.user_interactions.find((ui: any) => ui.user_id === userId)
+        : null;
+
+      return {
+        id: row.id,
+        creatorId: row.creator_id,
+        title: row.title,
+        description: row.description,
+        templateFunc: row.template_func,
+        postcondition: row.postcondition,
+        suggestedSolution: row.suggested_solution,
+        votes: row.votes,
+        userVote: userInteraction ? userInteraction.vote_type : 0,
+        createdAt: new Date(row.created_at).getTime(),
+        testCases: [], 
+      };
+    });
   }
 
   async upvote(challengeId: string) {

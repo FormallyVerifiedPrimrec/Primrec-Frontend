@@ -19,6 +19,7 @@ export interface Challenge {
   suggestedSolution?: string; // Hidden from users, used for verification
   testCases: TestCase[];
   votes: number;
+  userVote?: number; // -1, 0, or 1
   createdAt: number;
 }
 

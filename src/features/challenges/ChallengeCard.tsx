@@ -25,6 +25,10 @@ export function ChallengeCard({
             onClick={() => onUpvote(challenge.id)} 
             disabled={isCreator}
             title={isCreator ? "Creators cannot vote on their own challenges" : "Upvote"}
+            style={{
+              ...(isCreator ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
+              ...(challenge.userVote === 1 ? { color: 'var(--accent)', fontWeight: 'bold' } : {})
+            }}
           >
             ▲
           </button>
@@ -33,6 +37,10 @@ export function ChallengeCard({
             onClick={() => onDownvote(challenge.id)} 
             disabled={isCreator}
             title={isCreator ? "Creators cannot vote on their own challenges" : "Downvote"}
+            style={{
+              ...(isCreator ? { opacity: 0.5, cursor: 'not-allowed' } : {}),
+              ...(challenge.userVote === -1 ? { color: 'var(--accent)', fontWeight: 'bold' } : {})
+            }}
           >
             ▼
           </button>
