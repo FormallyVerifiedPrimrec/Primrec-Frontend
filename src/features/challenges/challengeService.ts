@@ -1,131 +1,41 @@
-import { supabase } from '../../supabaseClient';
-import type { Challenge } from './types';
+import type { Challenge } from './types'
+import {
+  createChallenge as apiCreateChallenge,
+  getChallengeById as apiGetChallengeById,
+  getChallenges as apiGetChallenges,
+  voteChallenge as apiVoteChallenge,
+} from '../../api/challengesApi'
 
 export class ChallengeService {
   async getSorted(by: 'votes' | 'date', query: string = ''): Promise<Challenge[]> {
-    const { data: authData } = await supabase.auth.getUser();
-    const userId = authData.user?.id;
-
-    // We fetch all challenges and the user's specific interaction
-    let supabaseQuery = supabase
-      .from('challenges')
-      .select(`
-        *,
-        user_interactions(vote_type, user_id)
-      `);
-
-    if (query) {
-      supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
-    }
-
-    if (by === 'votes') {
-      supabaseQuery = supabaseQuery.order('votes', { ascending: false });
-    } else {
-      supabaseQuery = supabaseQuery.order('created_at', { ascending: false });
-    }
-
-    const { data, error } = await supabaseQuery;
-
-    if (error) {
-      console.error('Error fetching challenges:', error);
-      return [];
-    }
-
-    return (data || []).map(row => {
-      // Find the interaction for the current user in the joined array
-      const userInteraction = Array.isArray(row.user_interactions) 
-        ? row.user_interactions.find((ui: any) => ui.user_id === userId)
-        : null;
-
-      return {
-        id: row.id,
-        creatorId: row.creator_id,
-        title: row.title,
-        description: row.description,
-        templateFunc: row.template_func,
-        postcondition: row.postcondition,
-        suggestedSolution: row.suggested_solution,
-        votes: row.votes,
-        userVote: userInteraction ? userInteraction.vote_type : 0,
-        createdAt: new Date(row.created_at).getTime(),
-        testCases: [], 
-      };
-    });
+    return apiGetChallenges({ sort: by, query })
   }
 
   async upvote(challengeId: string) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabase
-      .from('user_interactions')
-      .upsert({ 
-        user_id: user.id, 
-        challenge_id: challengeId, 
-        vote_type: 1 
-      }, { onConflict: 'user_id,challenge_id' });
-
-    if (error) console.error('Error upvoting:', error);
+    await apiVoteChallenge(challengeId, 1)
   }
 
   async downvote(challengeId: string) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabase
-      .from('user_interactions')
-      .upsert({ 
-        user_id: user.id, 
-        challenge_id: challengeId, 
-        vote_type: -1 
-      }, { onConflict: 'user_id,challenge_id' });
-
-    if (error) console.error('Error downvoting:', error);
+    await apiVoteChallenge(challengeId, -1)
   }
 
   async getById(id: string): Promise<Challenge | undefined> {
-    const { data, error } = await supabase
-      .from('challenges')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error || !data) return undefined;
-
-    return {
-      id: data.id,
-      creatorId: data.creator_id,
-      title: data.title,
-      description: data.description,
-      templateFunc: data.template_func,
-      postcondition: data.postcondition,
-      suggestedSolution: data.suggested_solution,
-      votes: data.votes,
-      createdAt: new Date(data.created_at).getTime(),
-      testCases: [],
-    };
+    try {
+      return await apiGetChallengeById(id)
+    } catch {
+      return undefined
+    }
   }
 
   async createChallenge(challenge: Omit<Challenge, 'id' | 'votes' | 'createdAt' | 'creatorId'>) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error('Must be logged in to create a challenge');
-
-    const { data, error } = await supabase
-      .from('challenges')
-      .insert({
-        creator_id: user.id,
-        title: challenge.title,
-        description: challenge.description,
-        template_func: challenge.templateFunc,
-        postcondition: challenge.postcondition,
-        suggested_solution: challenge.suggestedSolution,
-      })
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
+    return apiCreateChallenge({
+      title: challenge.title,
+      description: challenge.description,
+      templateFunc: challenge.templateFunc,
+      postcondition: challenge.postcondition,
+      suggestedSolution: challenge.suggestedSolution,
+    })
   }
 }
 
-export const challengeService = new ChallengeService();
+export const challengeService = new ChallengeService()
