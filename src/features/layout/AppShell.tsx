@@ -5,6 +5,7 @@ import type { ParseResult } from '../../primrecLanguage'
 import { EditorPane } from './EditorPane'
 import { ToolsSidebar } from './ToolsSidebar'
 import type { Challenge, SubmissionResult } from '../challenges/types'
+import type { ThemeVariant } from '../themes/themes'
 
 export function AppShell({
   source,
@@ -22,6 +23,7 @@ export function AppShell({
   onSubmit,
   onBack,
   isCreator,
+  themeVariant,
 }: {
   source: string
   setSource: Dispatch<SetStateAction<string>>
@@ -38,6 +40,7 @@ export function AppShell({
   onSubmit?: () => void
   onBack?: () => void
   isCreator: boolean
+  themeVariant: ThemeVariant
 }) {
   return (
     <main className="workspace">
@@ -50,6 +53,7 @@ export function AppShell({
         currentChallenge={currentChallenge}
         isCreating={isCreating}
         isCreator={isCreator}
+        themeVariant={themeVariant}
       />
       <ToolsSidebar
         functions={functions}

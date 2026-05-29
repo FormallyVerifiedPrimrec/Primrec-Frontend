@@ -63,16 +63,15 @@ export function ThemePicker({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
-        {isDark && (
-          <label className="themeOledToggle">
-            <input
-              type="checkbox"
-              checked={isOled}
-              onChange={(e) => setOled(e.target.checked)}
-            />
-            <span>OLED black background</span>
-          </label>
-        )}
+        <label className={`themeOledToggle ${!isDark ? 'disabled' : ''}`}>
+          <input
+            type="checkbox"
+            checked={isOled}
+            onChange={(e) => setOled(e.target.checked)}
+            disabled={!isDark}
+          />
+          <span>OLED black background</span>
+        </label>
       </div>
     </div>
   )

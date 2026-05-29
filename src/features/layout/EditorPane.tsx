@@ -20,6 +20,7 @@ export function EditorPane({
   currentChallenge,
   isCreating,
   isCreator,
+  themeVariant,
 }: {
   source: string
   setSource: Dispatch<SetStateAction<string>>
@@ -29,6 +30,7 @@ export function EditorPane({
   currentChallenge?: Challenge
   isCreating?: boolean
   isCreator?: boolean
+  themeVariant: 'dark' | 'light'
 }) {
   const definedNames = useMemo(() => {
     const parsed = parseSyntax(source)
@@ -125,7 +127,7 @@ export function EditorPane({
       </div>
 
       <div className="paneBody">
-        <PrimrecEditor value={source} onChange={setSource} fontSize={editorFontSize} />
+        <PrimrecEditor value={source} onChange={setSource} fontSize={editorFontSize} themeVariant={themeVariant} />
       </div>
     </section>
   )

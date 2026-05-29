@@ -129,6 +129,34 @@ export function registerPrimRecLanguage(monaco: MonacoApi) {
     },
   });
 
+  monaco.editor.defineTheme('primrec-light', {
+    base: 'vs',
+    inherit: true,
+    rules: [
+      { token: 'function.definition', foreground: '0451A5', fontStyle: 'bold' },
+      { token: 'function.call', foreground: '795E26' },
+      { token: 'function.builtin', foreground: 'AF00DB', fontStyle: 'bold' },
+      { token: 'function.primrec.base', foreground: '267F99' },
+      { token: 'function.primrec.step', foreground: 'B85B14' },
+      { token: 'parameter.definition', foreground: '267F99' },
+      { token: 'variable.reference', foreground: '555555' },
+      { token: 'keyword.primitive', foreground: 'AF00DB', fontStyle: 'bold' },
+      { token: 'variable', foreground: '403F53' },
+      { token: 'number', foreground: '098658' },
+      { token: 'number.literal', foreground: '098658' },
+      { token: 'operator', foreground: '333333' },
+      { token: 'delimiter', foreground: '8E908C' },
+      { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
+      { token: 'invalid', foreground: 'D62828', fontStyle: 'underline' },
+    ],
+    colors: {
+      'editor.background': '#ffffff',
+      'editorLineNumber.foreground': '#BDBDBD',
+      'editorLineNumber.activeForeground': '#6B6B6B',
+      'editorCursor.foreground': '#000000',
+    },
+  });
+
   monaco.languages.registerDocumentSemanticTokensProvider(LANGUAGE_ID, {
     getLegend() {
       return SEMANTIC_TOKEN_LEGEND;

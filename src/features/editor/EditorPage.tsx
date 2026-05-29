@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { useTheme } from '../themes/ThemeContext'
 import { useLocalStorageState } from './useLocalStorageState'
 import { discoverFunctions, type PrimrecFunction } from '../primrec/functionDiscovery'
 import { parsePrimRecProgram } from '../../primrecLanguage'
@@ -17,6 +18,7 @@ export function EditorPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { session } = useAuth()
+  const { theme } = useTheme()
 
   const [source, setSource] = useLocalStorageState('primrec.source', DEFAULT_SOURCE)
   const [editorFontSize, setEditorFontSize] = useLocalStorageState('primrec.editorFontSize', 14)
@@ -89,6 +91,7 @@ export function EditorPage() {
       onSubmit={handleSubmit}
       onBack={handleBack}
       isCreator={!!isCreator}
+      themeVariant={theme.variant}
     />
   )
 }

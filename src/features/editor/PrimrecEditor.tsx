@@ -11,10 +11,12 @@ export function PrimrecEditor({
   value,
   onChange,
   fontSize,
+  themeVariant,
 }: {
   value: string
   onChange: (next: string) => void
   fontSize: number
+  themeVariant: 'dark' | 'light'
 }) {
   const handleBeforeMount: BeforeMount = useCallback((monaco) => {
     registerPrimRecLanguage(monaco)
@@ -32,7 +34,7 @@ export function PrimrecEditor({
       height="100%"
       beforeMount={handleBeforeMount}
       language={LANGUAGE_ID}
-      theme="primrec-dark"
+      theme={themeVariant === 'dark' ? 'primrec-dark' : 'primrec-light'}
       value={value}
       onChange={(v: string | undefined) => onChange(v ?? '')}
       onMount={handleMount}

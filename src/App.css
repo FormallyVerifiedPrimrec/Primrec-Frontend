@@ -1259,3 +1259,12 @@
   height: 16px;
   cursor: pointer;
 }
+
+.themeOledToggle.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.themeOledToggle.disabled input[type="checkbox"] {
+  cursor: not-allowed;
+}
