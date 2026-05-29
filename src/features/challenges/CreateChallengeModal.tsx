@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Challenge } from "./types";
+import type { CreateChallengePayload } from "./types";
 import { Markdown } from "./Markdown";
 import { VerificationService } from "./verificationService";
 import { parsePrimRecProgram } from "../../primrecLanguage";
@@ -8,7 +8,7 @@ import type { NormalizedFunction } from "../../primrecLanguage/types";
 interface CreateChallengeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (challenge: Omit<Challenge, "id" | "votes" | "userVote" | "createdAt" | "creatorId">) => void;
+  onCreate: (challenge: CreateChallengePayload) => void;
 }
 
 export function CreateChallengeModal({

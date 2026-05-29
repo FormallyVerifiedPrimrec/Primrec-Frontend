@@ -1291,3 +1291,224 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+/* Profile & Avatar Styles */
+.avatarPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.avatarPlaceholder.small {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+}
+
+.avatarPlaceholder.large {
+  width: 100px;
+  height: 100px;
+  font-size: 40px;
+}
+
+.avatarSmall {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarLarge {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.userNameCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatarPreviewContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  width: 400px;
+  max-width: 90%;
+  overflow: hidden;
+}
+
+.modalHeader {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modalBody {
+  padding: 20px;
+}
+
+.modalFooter {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.formGroup {
+  margin-bottom: 16px;
+}
+
+.formGroup label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-h);
+  font-weight: 500;
+}
+
+.modalInput {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+}
+
+/* Community Solutions Styles */
+.communitySection {
+  margin-top: 24px;
+}
+
+.divider {
+  border: 0;
+  border-top: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+
+.solutionsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.solutionNav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pageCounter {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.solutionCard {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.solutionUser {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.creatorBadge {
+  background: var(--accent);
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.solveDate {
+  font-size: 12px;
+  color: var(--text);
+  margin-left: auto;
+}
+
+.solutionCode {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+
+.solutionCode code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+.solvedBadge {
+  font-size: 12px;
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.challengeCard.clickable {
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.challengeCard.clickable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.5);
+  border-color: var(--accent);
+}
+
+.challengeDescriptionPreview {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.detailModal {
+  width: 800px;
+  max-width: 95vw;
+}

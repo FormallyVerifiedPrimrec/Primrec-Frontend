@@ -14,7 +14,7 @@ export function Leaderboard({ users }: { users: User[] }) {
     () =>
       searchTerm
         ? users.filter((u) =>
-            u.name.toLowerCase().includes(searchTerm.toLowerCase()),
+            u.username.toLowerCase().includes(searchTerm.toLowerCase()),
           )
         : users,
     [users, searchTerm],
@@ -60,8 +60,15 @@ export function Leaderboard({ users }: { users: User[] }) {
               return (
                 <tr key={user.id}>
                   <td>{rank}</td>
-                  <td>{user.name}</td>
-                  <td>{user.score}</td>
+                  <td className="userNameCell">
+                    {user.avatarData ? (
+                      <img src={user.avatarData} alt="" className="avatarSmall" />
+                    ) : (
+                      <div className="avatarPlaceholder small">{user.username[0]?.toUpperCase()}</div>
+                    )}
+                    <span>{user.username}</span>
+                  </td>
+                  <td>{user.rankPoints}</td>
                 </tr>
               );
             })

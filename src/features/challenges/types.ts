@@ -1,7 +1,16 @@
 export interface User {
   id: string;
-  name: string;
-  score: number;
+  username: string;
+  rankPoints: number;
+  avatarData?: string;
+}
+
+export interface Solution {
+  username: string;
+  avatarData?: string;
+  source: string;
+  isCreator: boolean;
+  solvedAt: number;
 }
 
 export interface TestCase {
@@ -20,6 +29,7 @@ export interface Challenge {
   testCases: TestCase[];
   votes: number;
   userVote: -1 | 0 | 1;
+  isSolved: boolean;
   createdAt: number;
 }
 
@@ -30,4 +40,4 @@ export interface SubmissionResult {
   totalCount: number;
 }
 
-export type CreateChallengePayload = Omit<Challenge, 'id' | 'votes' | 'userVote' | 'createdAt' | 'creatorId'>;
+export type CreateChallengePayload = Omit<Challenge, 'id' | 'votes' | 'userVote' | 'isSolved' | 'createdAt' | 'creatorId'>;

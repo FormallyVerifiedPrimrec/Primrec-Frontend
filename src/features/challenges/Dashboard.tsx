@@ -6,6 +6,7 @@ import { rankedSystem } from "./rankedSystem";
 import type { Challenge, User } from "./types";
 import { supabase } from "../../supabaseClient";
 import { useDebounce } from "../editor/useDebounce";
+import { ChallengeDetails } from "./ChallengeDetails";
 
 const PAGE_SIZE = 50
 
@@ -39,6 +40,7 @@ export function Dashboard({ onSolve, onCreate }: { onSolve: (id: string) => void
   const [pendingVoteIds, setPendingVoteIds] = useState<Record<string, boolean>>({});
   const [page, setPage] = useState(0)
   const [hasMore, setHasMore] = useState(true)
+  const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -189,6 +191,7 @@ export function Dashboard({ onSolve, onCreate }: { onSolve: (id: string) => void
                     currentUserId={currentUserId}
                     onSolve={onSolve}
                     onVote={handleVote}
+                    onClick={(id) => setSelectedChallengeId(id)}
                   />
                 ))}
                 {hasMore && (
@@ -205,6 +208,29 @@ export function Dashboard({ onSolve, onCreate }: { onSolve: (id: string) => void
           </section>
         )}
       </div>
+
+      {selectedChallengeId && challenges.find(c => c.id === selectedChallengeId) && (
+        <div className="modalOverlay" onClick={() => setSelectedChallengeId(null)}>
+          <div className="modalContent detailModal" onClick={e => e.stopPropagation()} style={{ width: '800px', maxWidth: '95vw' }}>
+            <div className="modalHeader">
+              <h3>Challenge Overview</h3>
+              <button className="closeBtn" onClick={() => setSelectedChallengeId(null)}>&times;</button>
+            </div>
+            <div className="modalBody" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+              <ChallengeDetails challenge={challenges.find(c => c.id === selectedChallengeId)!} />
+            </div>
+            <div className="modalFooter">
+              <button className="navBtn" onClick={() => setSelectedChallengeId(null)}>Close</button>
+              <button className="saveBtn" onClick={() => {
+                onSolve(selectedChallengeId);
+                setSelectedChallengeId(null);
+              }}>
+                Open in Editor
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

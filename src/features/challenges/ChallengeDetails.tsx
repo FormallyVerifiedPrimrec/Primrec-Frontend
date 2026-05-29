@@ -1,5 +1,6 @@
 import type { Challenge, SubmissionResult } from './types';
 import { Markdown } from './Markdown';
+import { CommunitySolutions } from './CommunitySolutions';
 
 export function ChallengeDetails({ 
   challenge, 
@@ -8,6 +9,8 @@ export function ChallengeDetails({
   challenge: Challenge; 
   submissionResult?: SubmissionResult;
 }) {
+  const isSolved = challenge.isSolved || submissionResult?.success;
+
   return (
     <div className="challengeDetails">
       <h3 className="challengeTitle">{challenge.title}</h3>
@@ -24,6 +27,13 @@ export function ChallengeDetails({
               style={{ width: `${(submissionResult.passedCount / submissionResult.totalCount) * 100}%` }}
             />
           </div>
+        </div>
+      )}
+
+      {isSolved && (
+        <div className="communitySection">
+          <hr className="divider" />
+          <CommunitySolutions challengeId={challenge.id} />
         </div>
       )}
     </div>

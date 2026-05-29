@@ -3,12 +3,14 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../../supabaseClient'
 import { ThemePicker } from '../themes/ThemePicker'
 import { useTheme } from '../themes/ThemeContext'
+import { ProfileModal } from '../auth/ProfileModal'
 
 export function ProtectedLayout() {
   const navigate = useNavigate()
   const location = useLocation()
   const { theme } = useTheme()
   const [pickerOpen, setPickerOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
 
   const c = theme.colors.accent
 
@@ -40,6 +42,12 @@ export function ProtectedLayout() {
             </button>
             <button
               className="navBtn"
+              onClick={() => setProfileOpen(true)}
+            >
+              Profile
+            </button>
+            <button
+              className="navBtn"
               onClick={() => supabase.auth.signOut()}
               style={{ color: 'var(--danger)' }}
             >
@@ -54,6 +62,7 @@ export function ProtectedLayout() {
       </main>
 
       {pickerOpen && <ThemePicker onClose={() => setPickerOpen(false)} />}
+      {profileOpen && <ProfileModal onClose={() => setProfileOpen(false)} />}
     </div>
   )
 }
