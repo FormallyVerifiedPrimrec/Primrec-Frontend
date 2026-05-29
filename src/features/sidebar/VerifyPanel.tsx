@@ -1,98 +1,128 @@
-import { useState } from 'react';
-import type { ParseResult, NormalizedProgram, NormalizedFunction } from '../../primrecLanguage/types';
+// Verify panel: kicks off a formal verification of the selected function and
+// shows the dependency tree with a live status per node.
+//
+// Verification runs in a background worker via `useVerification`; the panel only
+// ever has one run in flight (enforced by the shared runner). The run is
+// cancellable, and it is aborted automatically when the editor source changes
+// (handled inside the hook).
+
+import { useMemo } from 'react';
 import type { PrimrecFunction } from '../primrec/functionDiscovery';
-import { VerificationService, type VerificationResult, type VerificationStatus } from '../challenges/verificationService';
+import {
+  analyzeProgram,
+  useVerification,
+  type VerificationResult,
+  type VerificationStatus,
+  type VerifiableFunction,
+} from '../verification';
 
 export function VerifyPanel({
   fn,
-  parseResult,
+  source,
 }: {
   fn?: PrimrecFunction;
-  parseResult: ParseResult;
+  source: string;
 }) {
-  const [results, setResults] = useState<Record<string, VerificationResult>>({});
-  const [verifying, setVerifying] = useState(false);
+  const analysis = useMemo(() => analyzeProgram(source), [source]);
+  const { results, isRunning, error, start, cancel } = useVerification(source);
 
-  const verificationService = VerificationService.getInstance();
+  const byName = useMemo(
+    () => new Map(analysis.functions.map((item) => [item.name, item])),
+    [analysis],
+  );
 
-  const program = parseResult.program;
-
-  const handleVerify = async () => {
-    if (!fn || !program) return;
-
-    setVerifying(true);
-    verificationService.reset();
-    setResults({});
-
-    await verificationService.verifyFunction(fn.name, program, (name: string, result: VerificationResult) => {
-      setResults(prev => ({ ...prev, [name]: result }));
-    });
-
-    setVerifying(false);
-  };
+  const canVerify = !!fn && !analysis.hasErrors && byName.has(fn.name);
 
   return (
     <section className="panel verifyPanel">
       <div className="panelHeader">
         <div className="panelTitle">Verify</div>
         {fn && (
-          <button 
-            className="saveBtn" 
-            onClick={handleVerify} 
-            disabled={verifying || !program}
-            style={{ padding: '2px 8px', fontSize: '12px' }}
-          >
-            {verifying ? 'Verifying...' : 'Verify All'}
-          </button>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            <button
+              className="saveBtn"
+              onClick={() => start(fn.name)}
+              disabled={!canVerify || isRunning}
+              style={{ padding: '2px 8px', fontSize: '12px' }}
+            >
+              {isRunning ? 'Verifying…' : 'Verify All'}
+            </button>
+            {isRunning && (
+              <button
+                className="iconBtn"
+                onClick={cancel}
+                style={{ padding: '2px 8px', fontSize: '12px' }}
+                title="Cancel verification"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         )}
       </div>
 
       <div className="panelContent">
-        {fn ? (
+        {error && (
+          <div
+            className="integrityWarning"
+            style={{ color: 'var(--danger-bright)', fontSize: '12px', marginBottom: '8px' }}
+          >
+            ⚠ {error}
+          </div>
+        )}
+        {fn && canVerify ? (
           <div className="verificationTree">
-            <div className="treeTitle">Dependency Tree for <strong>{fn.name}</strong></div>
+            <div className="treeTitle">
+              Dependency Tree for <strong>{fn.name}</strong>
+            </div>
             <div className="treeRoot">
-              <VerificationNode 
-                name={fn.name} 
-                program={program} 
-                results={results} 
-                isRoot 
-              />
+              <VerificationNode name={fn.name} byName={byName} results={results} isRoot />
             </div>
           </div>
         ) : (
-          <div className="empty">No function selected</div>
+          <div className="empty">
+            {fn
+              ? 'Selected function is not available (fix errors first).'
+              : 'No function selected'}
+          </div>
         )}
       </div>
     </section>
   );
 }
 
-function VerificationNode({ 
-  name, 
-  program, 
+function VerificationNode({
+  name,
+  byName,
   results,
-  isRoot = false 
-}: { 
-  name: string; 
-  program?: NormalizedProgram; 
+  isRoot = false,
+}: {
+  name: string;
+  byName: Map<string, VerifiableFunction>;
   results: Record<string, VerificationResult>;
   isRoot?: boolean;
 }) {
-  const fnDef = program?.functions.find((f: NormalizedFunction) => f.name === name);
+  const fnDef = byName.get(name);
   const result = results[name];
-  const status = result?.status ?? 'unknown';
-
-  const dependencies = fnDef?.dependencies ?? [];
+  const status = result?.status ?? 'pending';
+  const dependencies = fnDef?.dependencies.filter((dep) => byName.has(dep)) ?? [];
 
   return (
     <div className={`treeNode ${isRoot ? 'root' : ''}`}>
       <div className="nodeInfo">
         <StatusIcon status={status} />
         <span className="nodeName">{name}</span>
-        {fnDef && !fnDef.postcondition && <span className="noPost"> (no postcondition)</span>}
+        {fnDef && !fnDef.hasPostcondition && (
+          <span className="noPost"> (no postcondition)</span>
+        )}
       </div>
-      
+
+      {result?.message && status !== 'verified' && (
+        <div className="nodeMessage" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+          {result.message}
+        </div>
+      )}
+
       {result?.counterExample && (
         <div className="counterExample">
           <strong>Counter-example:</strong>
@@ -102,13 +132,8 @@ function VerificationNode({
 
       {dependencies.length > 0 && (
         <div className="nodeChildren">
-          {dependencies.map((dep: string) => (
-            <VerificationNode 
-              key={dep} 
-              name={dep} 
-              program={program} 
-              results={results} 
-            />
+          {dependencies.map((dep) => (
+            <VerificationNode key={dep} name={dep} byName={byName} results={results} />
           ))}
         </div>
       )}
@@ -118,11 +143,22 @@ function VerificationNode({
 
 function StatusIcon({ status }: { status: VerificationStatus }) {
   switch (status) {
-    case 'verified': return <span className="statusIcon success" title="Verified">✅</span>;
-    case 'failed': return <span className="statusIcon failure" title="Failed">❌</span>;
-    case 'dependency-failed': return <span className="statusIcon dep-failure" title="Dependency Failed">❓</span>;
-    case 'unknown': return <span className="statusIcon unknown" title="Unknown">?</span>;
-    case 'verifying': return <span className="statusIcon loading" title="Verifying">⏳</span>;
-    default: return null;
+    case 'verified':
+      return <span className="statusIcon success" title="Verified">✅</span>;
+    case 'failed':
+      return <span className="statusIcon failure" title="Failed">❌</span>;
+    case 'dependency-failed':
+      return <span className="statusIcon dep-failure" title="Dependency failed">❓</span>;
+    case 'verifying':
+      return <span className="statusIcon loading" title="Verifying">⏳</span>;
+    case 'skipped':
+      return <span className="statusIcon skipped" title="Skipped (no postcondition)">➖</span>;
+    case 'unknown':
+      return <span className="statusIcon unknown" title="Unknown">?</span>;
+    case 'error':
+      return <span className="statusIcon failure" title="Error">⚠️</span>;
+    case 'pending':
+    default:
+      return <span className="statusIcon unknown" title="Pending">·</span>;
   }
 }

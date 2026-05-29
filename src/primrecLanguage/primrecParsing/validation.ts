@@ -1,4 +1,9 @@
-import { BUILTIN_SIGNATURES, RESERVED_NAMES } from './constants';
+// Ported 1:1 from the PrimRecEditor reference implementation (primrecLanguage).
+// This brings the up-to-date parser, validator, postcondition support and
+// SMT-LIB Horn conversion into the frontend. Do not diverge from the editor
+// copy without porting the change back there as well.
+
+import { BUILTIN_SIGNATURES, RESERVED_NAMES } from '../constants';
 import { diagnostic } from './ranges';
 import type {
   CallExpression,
@@ -11,7 +16,7 @@ import type {
   NormalizedProgram,
   ProgramAst,
   SourceRange,
-} from './types';
+} from '../types';
 
 interface ValidationContext {
   definition: FunctionDefinition;
@@ -176,6 +181,15 @@ function validateExpression(
       return;
 
     case 'NumberLiteral':
+      if (!Number.isSafeInteger(expression.value)) {
+        context.diagnostics.push(
+          diagnostic(
+            'VALIDATION_UNSAFE_NUMBER_LITERAL',
+            `Numeric literal '${expression.raw}' is too large to evaluate safely.`,
+            expression.range,
+          ),
+        );
+      }
       return;
 
     case 'Call':
@@ -399,7 +413,7 @@ function normalizeExpression(
       };
 
     case 'NumberLiteral':
-      return normalizeNumber(expression.value);
+      return { kind: 'Number', value: expression.value };
 
     case 'Call': {
       const normalizedArgs = expression.args.map((arg) =>
@@ -428,12 +442,4 @@ function normalizeExpression(
     case 'Error':
       return { kind: 'Zero' };
   }
-}
-
-function normalizeNumber(value: number): CoreExpression {
-  let expression: CoreExpression = { kind: 'Zero' };
-  for (let index = 0; index < value; index += 1) {
-    expression = { kind: 'Successor', argument: expression };
-  }
-  return expression;
 }

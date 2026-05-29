@@ -1,3 +1,8 @@
+// Ported 1:1 from the PrimRecEditor reference implementation (primrecLanguage).
+// This brings the up-to-date parser, validator, postcondition support and
+// SMT-LIB Horn conversion into the frontend. Do not diverge from the editor
+// copy without porting the change back there as well.
+
 export interface SourcePosition {
   offset: number;
   line: number;
@@ -42,8 +47,6 @@ export interface FunctionDefinition {
   name: string;
   params: Parameter[];
   body: Expression;
-  postcondition?: string;
-  postconditionRange?: SourceRange;
   range: SourceRange;
   nameRange: SourceRange;
 }
@@ -105,10 +108,37 @@ export interface FunctionSignature {
 
 export type CoreExpression =
   | { kind: 'Projection'; parameter: string; index: number }
+  | { kind: 'Number'; value: number }
   | { kind: 'Zero' }
   | { kind: 'Successor'; argument: CoreExpression }
   | { kind: 'Composition'; callee: string; args: CoreExpression[] }
-  | { kind: 'PrimitiveRecursion'; base: string; step: string };
+  | PrimitiveRecursionCoreExpression;
+
+export interface PrimitiveRecursionCoreExpression {
+  kind: 'PrimitiveRecursion';
+  base: string;
+  step: string;
+  idiom?: PrimitiveRecursionIdiom;
+}
+
+export type PrimitiveRecursionIdiom =
+  | {
+      kind: 'Predecessor';
+      counterIndex: number;
+      previousIndex: number;
+    }
+  | {
+      kind: 'ConstantAfterFirst';
+      counterIndex: number;
+      previousIndex: number;
+      expression: CoreExpression;
+    }
+  | {
+      kind: 'LinearRecurrence';
+      counterIndex: number;
+      previousIndex: number;
+      increment: CoreExpression;
+    };
 
 export interface NormalizedFunction {
   name: string;
@@ -116,7 +146,6 @@ export interface NormalizedFunction {
   parameters: string[];
   expression: CoreExpression;
   dependencies: string[];
-  postcondition?: string;
   range: SourceRange;
 }
 

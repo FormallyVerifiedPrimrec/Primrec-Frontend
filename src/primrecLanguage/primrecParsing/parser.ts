@@ -1,3 +1,8 @@
+// Ported 1:1 from the PrimRecEditor reference implementation (primrecLanguage).
+// This brings the up-to-date parser, validator, postcondition support and
+// SMT-LIB Horn conversion into the frontend. Do not diverge from the editor
+// copy without porting the change back there as well.
+
 import { lex } from './lexer';
 import { diagnostic, mergeRanges, tokenRange } from './ranges';
 import type {
@@ -9,7 +14,7 @@ import type {
   ProgramAst,
   SourceRange,
   Token,
-} from './types';
+} from '../types';
 
 interface ParserState {
   tokens: Token[];

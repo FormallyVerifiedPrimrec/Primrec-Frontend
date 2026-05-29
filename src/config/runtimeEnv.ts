@@ -2,6 +2,9 @@ type RuntimeEnvKey =
   | 'VITE_SUPABASE_URL'
   | 'VITE_SUPABASE_ANON_KEY'
   | 'VITE_CHALLENGES_API_URL'
+  // Base path/URL of the solver backend used for formal verification. Defaults
+  // to '/solver' (reverse-proxied to the solver-backend container by Caddy).
+  | 'VITE_SOLVER_API_URL'
 
 type RuntimeEnv = Partial<Record<RuntimeEnvKey, string>>
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { parsePrimRecProgram } from '.';
-import type { CoreExpression } from './types';
+import { parsePrimRecProgram } from '..';
+import type { CoreExpression } from '../types';
 
 describe('parsePrimRecProgram valid programs', () => {
   it('normalizes the addition example', () => {
@@ -21,17 +21,11 @@ plus(x, y) = primrec(plusBase, plusStep);`);
     });
   });
 
-  it('expands numeric literals into the primitive core', () => {
+  it('preserves numeric literals as constants in the normalized core', () => {
     const result = parsePrimRecProgram('two(x) = 2;');
 
     expect(result.diagnostics).toEqual([]);
-    expect(result.program?.functions[0].expression).toEqual({
-      kind: 'Successor',
-      argument: {
-        kind: 'Successor',
-        argument: { kind: 'Zero' },
-      },
-    });
+    expect(result.program?.functions[0].expression).toEqual({ kind: 'Number', value: 2 });
   });
 
   it('normalizes a simple identity function', () => {
@@ -98,30 +92,19 @@ g(x) = f(x);`);
   it('normalizes 0 as a numeric literal', () => {
     const result = parsePrimRecProgram('z(x) = 0;');
     expect(result.diagnostics).toEqual([]);
-    expect(result.program?.functions[0].expression).toEqual({ kind: 'Zero' });
+    expect(result.program?.functions[0].expression).toEqual({ kind: 'Number', value: 0 });
   });
 
-  it('normalizes 1 as successor of zero', () => {
+  it('normalizes 1 as a numeric literal', () => {
     const result = parsePrimRecProgram('one(x) = 1;');
     expect(result.diagnostics).toEqual([]);
-    expect(result.program?.functions[0].expression).toEqual({
-      kind: 'Successor',
-      argument: { kind: 'Zero' },
-    });
+    expect(result.program?.functions[0].expression).toEqual({ kind: 'Number', value: 1 });
   });
 
   it('normalizes a larger numeric literal', () => {
     const result = parsePrimRecProgram('hundred(x) = 100;');
     expect(result.diagnostics).toEqual([]);
-    const expr = result.program?.functions[0].expression;
-    let node = expr;
-    let count = 0;
-    while (node?.kind === 'Successor') {
-      count += 1;
-      node = node.argument;
-    }
-    expect(count).toBe(100);
-    expect(node).toEqual({ kind: 'Zero' });
+    expect(result.program?.functions[0].expression).toEqual({ kind: 'Number', value: 100 });
   });
 
   it('normalizes composition with multiple arguments', () => {

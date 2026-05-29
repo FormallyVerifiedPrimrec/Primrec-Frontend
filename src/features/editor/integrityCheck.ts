@@ -1,6 +1,12 @@
+// Challenge integrity check.
+//
+// Verifies that the editor content still contains the function a challenge asks
+// for, together with a postcondition for it. Updated to the new language model
+// where postconditions live in a separate section (surfaced via analyzeProgram)
+// instead of a `FunctionDefinition.postcondition` field.
+
 import type { Challenge } from '../challenges/types';
-import { parsePrimRecProgram } from '../../primrecLanguage';
-import type { FunctionDefinition } from '../../primrecLanguage/types';
+import { analyzeProgram } from '../verification';
 
 export interface IntegrityStatus {
   isValid: boolean;
@@ -10,39 +16,33 @@ export interface IntegrityStatus {
 }
 
 export function checkChallengeIntegrity(source: string, challenge: Challenge): IntegrityStatus {
-  const parseResult = parsePrimRecProgram(source);
-  
-  // Try to find the target function. 
-  // For now we assume the challenge expects a specific function name.
-  // We can extract the name from the templateFunc or postcondition.
-  // Let's assume the postcondition starts with the function name like "plus(x, y) = ..."
-  const match = challenge.postcondition.match(/^([a-zA-Z_][a-zA-Z0-9_]*)/);
+  const analysis = analyzeProgram(source);
+
+  // The challenge's expected entry function is encoded as the leading
+  // identifier of its stored postcondition (e.g. "plus(x, y) -> r { ... }" or
+  // "post plus(x, y) -> r { ... }").
+  const match = challenge.postcondition.match(/^\s*(?:post\s+)?([a-zA-Z_][a-zA-Z0-9_]*)/);
   const targetName = match ? match[1] : null;
 
   if (!targetName) return { isValid: true }; // Cannot determine target
 
-  const fnDef = parseResult.ast.definitions.find((d: FunctionDefinition) => d.name === targetName);
+  const fn = analysis.functions.find((item) => item.name === targetName);
 
-  if (!fnDef) {
-    return { 
-      isValid: false, 
-      missingFunction: true, 
-      error: `Required function '${targetName}' is missing.` 
+  if (!fn) {
+    return {
+      isValid: false,
+      missingFunction: true,
+      error: `Required function '${targetName}' is missing.`,
     };
   }
 
-  // Check if postcondition is present in the code (in-code postcondition)
-  // Or if it matches the challenge postcondition
-  if (!fnDef.postcondition) {
-    return { 
-      isValid: false, 
-      missingPostcondition: true, 
-      error: `Postcondition for '${targetName}' is missing.` 
+  if (!fn.hasPostcondition) {
+    return {
+      isValid: false,
+      missingPostcondition: true,
+      error: `Postcondition for '${targetName}' is missing.`,
     };
   }
-
-  // Optional: check if the postcondition matches exactly what's required
-  // if (fnDef.postcondition !== challenge.postcondition) { ... }
 
   return { isValid: true };
 }
