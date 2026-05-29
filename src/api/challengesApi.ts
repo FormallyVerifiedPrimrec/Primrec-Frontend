@@ -1,13 +1,7 @@
 import { supabase } from '../supabaseClient'
 import type { Challenge, User } from '../features/challenges/types'
 
-const API_BASE_URL = (import.meta.env.VITE_CHALLENGES_API_URL as string | undefined) ?? ''
-
-function assertConfigured() {
-  if (!API_BASE_URL) {
-    throw new Error('VITE_CHALLENGES_API_URL is missing from .env file.')
-  }
-}
+const API_BASE_URL = ((import.meta.env.VITE_CHALLENGES_API_URL as string | undefined) ?? '').replace(/\/+$/, '')
 
 async function getAccessToken(): Promise<string> {
   const { data, error } = await supabase.auth.getSession()
@@ -18,7 +12,6 @@ async function getAccessToken(): Promise<string> {
 }
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  assertConfigured()
   const token = await getAccessToken()
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
