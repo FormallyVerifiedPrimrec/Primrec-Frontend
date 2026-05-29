@@ -7,8 +7,8 @@ import {
 } from '../../api/challengesApi'
 
 export class ChallengeService {
-  async getSorted(by: 'votes' | 'date', query: string = ''): Promise<Challenge[]> {
-    return apiGetChallenges({ sort: by, query })
+  async getSorted(by: 'votes' | 'date', query: string = '', limit?: number, offset?: number): Promise<Challenge[]> {
+    return apiGetChallenges({ sort: by, query, limit, offset })
   }
 
   async vote(challengeId: string, voteType: -1 | 0 | 1) {

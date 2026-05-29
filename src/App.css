@@ -1268,3 +1268,26 @@
 .themeOledToggle.disabled input[type="checkbox"] {
   cursor: not-allowed;
 }
+
+.loadMoreBtn {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 8px;
+  background: var(--social-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-h);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.loadMoreBtn:hover {
+  background: var(--code-bg);
+}
+
+.loadMoreBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

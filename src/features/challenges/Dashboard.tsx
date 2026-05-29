@@ -5,61 +5,67 @@ import { challengeService } from "./challengeService";
 import { rankedSystem } from "./rankedSystem";
 import type { Challenge, User } from "./types";
 import { supabase } from "../../supabaseClient";
+import { useDebounce } from "../editor/useDebounce";
+
+const PAGE_SIZE = 50
+
+function insertSorted(items: Challenge[], item: Challenge, sort: "votes" | "date"): Challenge[] {
+  const result = items.filter((ch) => ch.id !== item.id)
+  let lo = 0
+  let hi = result.length
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1
+    const cmp = sort === "votes"
+      ? item.votes !== result[mid].votes
+        ? item.votes > result[mid].votes ? -1 : 1
+        : item.createdAt > result[mid].createdAt ? -1 : 1
+      : item.createdAt > result[mid].createdAt ? -1 : 1
+    if (cmp < 0) hi = mid
+    else lo = mid + 1
+  }
+  result.splice(lo, 0, item)
+  return result
+}
 
 export function Dashboard({ onSolve, onCreate }: { onSolve: (id: string) => void, onCreate: () => void }) {
   const [activeTab, setActiveTab] = useState<"challenges" | "leaderboard">("challenges");
   const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 300)
   const [sortBy, setSortBy] = useState<"votes" | "date">("votes");
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [pendingVoteIds, setPendingVoteIds] = useState<Record<string, boolean>>({});
+  const [page, setPage] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
 
   const [error, setError] = useState<string | null>(null);
 
-  const sortChallenges = useCallback((items: Challenge[], sort: "votes" | "date") => {
-    return [...items].sort((a, b) => {
-      if (sort === "votes") {
-        return b.votes - a.votes || b.createdAt - a.createdAt;
-      }
-      return b.createdAt - a.createdAt;
-    });
-  }, []);
-
-  const applyVoteLocally = useCallback((
-    items: Challenge[],
-    challengeId: string,
-    nextVote: -1 | 0 | 1
-  ) => {
-    return items.map((challenge) => {
-      if (challenge.id !== challengeId) return challenge;
-
-      const previousVote = challenge.userVote;
-      const voteDelta = nextVote - previousVote;
-
-      return {
-        ...challenge,
-        userVote: nextVote,
-        votes: challenge.votes + voteDelta,
-      };
-    });
-  }, []);
-
-  const loadData = useCallback(async () => {
+  const loadData = useCallback(async (resetPage: boolean) => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
+      const currentPage = resetPage ? 0 : page
+      const offset = currentPage * PAGE_SIZE
+
       const [fetchedChallenges, fetchedUsers] = await Promise.all([
-        challengeService.getSorted(sortBy, query),
-        rankedSystem.getUsersSorted()
+        challengeService.getSorted(sortBy, debouncedQuery, PAGE_SIZE, offset),
+        rankedSystem.getUsersSorted(PAGE_SIZE, offset)
       ]);
-      
+
       const authUser = await supabase.auth.getUser();
-      
-      setChallenges(sortChallenges(fetchedChallenges, sortBy));
-      setUsers(fetchedUsers);
+
+      if (resetPage) {
+        setChallenges(fetchedChallenges)
+        setUsers(fetchedUsers)
+        setPage(0)
+      } else {
+        setChallenges((prev) => [...prev, ...fetchedChallenges])
+        setUsers((prev) => [...prev, ...fetchedUsers])
+      }
+      setHasMore(fetchedChallenges.length === PAGE_SIZE)
       setCurrentUserId(authUser.data.user?.id || null);
     } catch (err: any) {
       console.error("Dashboard data load error:", err);
@@ -67,11 +73,23 @@ export function Dashboard({ onSolve, onCreate }: { onSolve: (id: string) => void
     } finally {
       setIsLoading(false);
     }
-  }, [sortBy, query]);
+  }, [sortBy, debouncedQuery, page]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    loadData(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortBy, debouncedQuery]);
+
+  const handleLoadMore = () => {
+    setPage((p) => p + 1)
+  }
+
+  useEffect(() => {
+    if (page > 0) {
+      loadData(false)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page])
 
   const handleVote = async (id: string, nextVote: -1 | 0 | 1) => {
     if (pendingVoteIds[id]) return;
@@ -79,8 +97,19 @@ export function Dashboard({ onSolve, onCreate }: { onSolve: (id: string) => void
     const snapshot = challenges;
     setPendingVoteIds((current) => ({ ...current, [id]: true }));
 
-    const updated = applyVoteLocally(snapshot, id, nextVote);
-    setChallenges(sortChallenges(updated, sortBy));
+    const target = snapshot.find((ch) => ch.id === id)
+    if (!target) return
+
+    const previousVote = target.userVote;
+    const voteDelta = nextVote - previousVote;
+
+    const updated = {
+      ...target,
+      userVote: nextVote,
+      votes: target.votes + voteDelta,
+    };
+
+    setChallenges(insertSorted(snapshot, updated, sortBy));
 
     try {
       await challengeService.vote(id, nextVote);
@@ -152,15 +181,22 @@ export function Dashboard({ onSolve, onCreate }: { onSolve: (id: string) => void
             ) : challenges.length === 0 ? (
               <div className="empty">No challenges found.</div>
             ) : (
-              challenges.map((challenge) => (
-                <ChallengeCard
-                  key={challenge.id}
-                  challenge={challenge}
-                  currentUserId={currentUserId}
-                  onSolve={onSolve}
-                  onVote={handleVote}
-                />
-              ))
+              <>
+                {challenges.map((challenge) => (
+                  <ChallengeCard
+                    key={challenge.id}
+                    challenge={challenge}
+                    currentUserId={currentUserId}
+                    onSolve={onSolve}
+                    onVote={handleVote}
+                  />
+                ))}
+                {hasMore && (
+                  <button className="loadMoreBtn" onClick={handleLoadMore} disabled={isLoading}>
+                    {isLoading ? 'Loading...' : 'Load More'}
+                  </button>
+                )}
+              </>
             )}
           </section>
         ) : (
