@@ -21,7 +21,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      setInitError('VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is missing from .env file.')
+      setInitError('VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY is missing from runtime config.')
       setIsSupabaseLoading(false)
       return
     }

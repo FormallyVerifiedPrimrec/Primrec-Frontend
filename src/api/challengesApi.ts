@@ -1,7 +1,8 @@
 import { supabase } from '../supabaseClient'
+import { getRuntimeEnv } from '../config/runtimeEnv'
 import type { Challenge, User } from '../features/challenges/types'
 
-const API_BASE_URL = ((import.meta.env.VITE_CHALLENGES_API_URL as string | undefined) ?? '').replace(/\/+$/, '')
+const API_BASE_URL = getRuntimeEnv('VITE_CHALLENGES_API_URL').replace(/\/+$/, '')
 
 async function getAccessToken(): Promise<string> {
   const { data, error } = await supabase.auth.getSession()

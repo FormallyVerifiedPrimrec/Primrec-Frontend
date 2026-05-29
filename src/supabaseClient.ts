@@ -1,9 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
+import { getRuntimeEnv } from './config/runtimeEnv';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const supabaseUrl = getRuntimeEnv('VITE_SUPABASE_URL');
+const supabaseAnonKey = getRuntimeEnv('VITE_SUPABASE_ANON_KEY');
 
-// Initialize with empty strings if missing; App.tsx will handle the logic
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Supabase validates constructor arguments eagerly. Keep the client importable
+// while AuthContext blocks auth flows when the real runtime config is missing.
+export const supabase = createClient(
+  supabaseUrl || 'http://localhost',
+  supabaseAnonKey || 'missing-anon-key',
+);
 
 export const isSupabaseConfigured = !!(supabaseUrl && supabaseAnonKey);

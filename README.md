@@ -25,13 +25,15 @@ Web application for the PrimRec platform — a primitive recursive functions pro
 
 ### Environment Variables
 
-Create a `.env` file in the repository root (the parent directory, as configured in `vite.config.ts`):
+For local development, create a `.env` file in the repository root (the parent directory, as configured in `vite.config.ts`):
 
 ```env
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbGciOi...
 VITE_CHALLENGES_API_URL=/api
 ```
+
+Production Docker images do not need these values at build time. The container writes `/srv/runtime-config.js` from its runtime environment on startup, so passing the same variables to `docker run` or `docker compose` is enough.
 
 ### Development
 
