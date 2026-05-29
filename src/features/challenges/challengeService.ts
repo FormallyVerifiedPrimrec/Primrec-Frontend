@@ -1,16 +1,17 @@
-import type { Challenge } from './types';
-import { MOCK_CHALLENGES } from './mockData';
+import type { Challenge } from "./types";
+import { MOCK_CHALLENGES } from "./mockData";
 
 export class ChallengeService {
   private challenges: Challenge[] = [...MOCK_CHALLENGES];
 
-  getSorted(by: 'votes' | 'date', query: string = ''): Challenge[] {
-    const filtered = this.challenges.filter(c => 
-      c.title.toLowerCase().includes(query.toLowerCase()) || 
-      c.description.toLowerCase().includes(query.toLowerCase())
+  getSorted(by: "votes" | "date", query: string = ""): Challenge[] {
+    const filtered = this.challenges.filter(
+      (c) =>
+        c.title.toLowerCase().includes(query.toLowerCase()) ||
+        c.description.toLowerCase().includes(query.toLowerCase()),
     );
 
-    if (by === 'votes') {
+    if (by === "votes") {
       return filtered.sort((a, b) => b.votes - a.votes);
     } else {
       return filtered.sort((a, b) => b.createdAt - a.createdAt);
@@ -18,20 +19,20 @@ export class ChallengeService {
   }
 
   upvote(id: string) {
-    const challenge = this.challenges.find(c => c.id === id);
+    const challenge = this.challenges.find((c) => c.id === id);
     if (challenge) challenge.votes++;
   }
 
   downvote(id: string) {
-    const challenge = this.challenges.find(c => c.id === id);
+    const challenge = this.challenges.find((c) => c.id === id);
     if (challenge) challenge.votes--;
   }
 
   getById(id: string): Challenge | undefined {
-    return this.challenges.find(c => c.id === id);
+    return this.challenges.find((c) => c.id === id);
   }
 
-  createChallenge(challenge: Omit<Challenge, 'id' | 'votes' | 'createdAt'>) {
+  createChallenge(challenge: Omit<Challenge, "id" | "votes" | "createdAt">) {
     const newChallenge: Challenge = {
       ...challenge,
       id: Math.random().toString(36).substr(2, 9),

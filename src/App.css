@@ -498,9 +498,9 @@
 }
 
 .statusBadge.ok {
-  color: #147d3f;
-  background: rgba(20, 125, 63, 0.1);
-  border-color: rgba(20, 125, 63, 0.3);
+  color: #89dfda;
+  background: rgba(137, 223, 218, 0.1);
+  border-color: rgba(137, 223, 218, 0.3);
 }
 
 .statusBadge.error {
@@ -864,7 +864,7 @@
 
 .submitBtn {
   padding: 4px 12px;
-  background: #147d3f;
+  background: #35b2c4;
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -881,9 +881,9 @@
 }
 
 .submissionFeedback.success {
-  background: rgba(20, 125, 63, 0.1);
-  border-color: rgba(20, 125, 63, 0.3);
-  color: #147d3f;
+  background: rgba(137, 223, 218, 0.1);
+  border-color: rgba(137, 223, 218, 0.3);
+  color: #89dfda;
 }
 
 .submissionFeedback.failure {
