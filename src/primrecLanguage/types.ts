@@ -42,6 +42,8 @@ export interface FunctionDefinition {
   name: string;
   params: Parameter[];
   body: Expression;
+  postcondition?: string;
+  postconditionRange?: SourceRange;
   range: SourceRange;
   nameRange: SourceRange;
 }
@@ -114,6 +116,7 @@ export interface NormalizedFunction {
   parameters: string[];
   expression: CoreExpression;
   dependencies: string[];
+  postcondition?: string;
   range: SourceRange;
 }
 

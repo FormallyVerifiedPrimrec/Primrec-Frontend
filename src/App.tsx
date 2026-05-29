@@ -81,7 +81,7 @@ function ProtectedLayout() {
           <div className="brand">Primrec</div>
           <nav className="navLinks">
             <button
-              className={`navBtn ${location.pathname.startsWith('/editor') ? 'active' : ''}`}
+              className={`navBtn ${location.pathname === '/editor' ? 'active' : ''}`}
               onClick={() => navigate('/editor')}
             >
               Editor
@@ -113,14 +113,16 @@ function ProtectedLayout() {
 function EditorPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { session } = useAuth()
 
   const [source, setSource] = useLocalStorageState('primrec.source', DEFAULT_SOURCE)
   const [editorFontSize, setEditorFontSize] = useLocalStorageState('primrec.editorFontSize', 14)
   const [selectedName, setSelectedName] = useState<string>('plus')
   const [submissionResult, setSubmissionResult] = useState<SubmissionResult | undefined>()
-  const [postcondition, setPostcondition] = useState<string>('')
   const [currentChallenge, setCurrentChallenge] = useState<Challenge | undefined>()
+  
+  const isCreating = location.state?.isCreating ?? false
 
   const functions = useMemo(() => discoverFunctions(source), [source])
   const parseResult = useMemo(() => parsePrimRecProgram(source), [source])
@@ -131,17 +133,19 @@ function EditorPage() {
         if (challenge) {
           setCurrentChallenge(challenge)
           setSource(challenge.templateFunc)
-          setPostcondition(challenge.postcondition)
           setSubmissionResult(undefined)
         }
       })
+    } else if (isCreating) {
+      setCurrentChallenge(undefined)
+      setSource("// Write your suggested solution here\n// All functions must have { postconditions }\n\nmain(x) = x { main(x) = x };")
+      setSubmissionResult(undefined)
     } else {
       setCurrentChallenge(undefined)
       setSubmissionResult(undefined)
-      setPostcondition('')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id])
+  }, [id, isCreating])
 
   const handleSubmit = async () => {
     if (currentChallenge) {
@@ -174,11 +178,10 @@ function EditorPage() {
       selectedFn={selectedFn}
       parseResult={parseResult}
       currentChallenge={currentChallenge}
+      isCreating={isCreating}
       submissionResult={submissionResult}
       onSubmit={handleSubmit}
       onBack={() => navigate('/challenges')}
-      postcondition={postcondition}
-      setPostcondition={setPostcondition}
       isCreator={!!isCreator}
     />
   )
@@ -187,7 +190,12 @@ function EditorPage() {
 function ChallengesPage() {
   const navigate = useNavigate()
 
-  return <Dashboard onSolve={(id) => navigate(`/editor/${id}`)} />
+  return (
+    <Dashboard 
+      onSolve={(id) => navigate(`/editor/${id}`)} 
+      onCreate={() => navigate('/editor', { state: { isCreating: true } })} 
+    />
+  )
 }
 
 export default App
