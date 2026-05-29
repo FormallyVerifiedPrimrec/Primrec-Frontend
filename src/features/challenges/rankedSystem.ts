@@ -1,12 +1,10 @@
 import { parsePrimRecProgram } from '../../primrecLanguage';
 import { evaluatePrimRecFunction } from '../../primrecLanguage/interpreter';
+import { supabase } from '../../supabaseClient';
 import type { Challenge, SubmissionResult, User } from './types';
-import { MOCK_USERS } from './mockData';
 
 export class RankedSystem {
-  private users: User[] = [...MOCK_USERS];
-
-  verifySubmission(userId: string, challenge: Challenge, userCode: string): SubmissionResult {
+  async verifySubmission(challenge: Challenge, userCode: string): Promise<SubmissionResult> {
     const parseResult = parsePrimRecProgram(userCode);
     
     if (!parseResult.program) {
@@ -39,8 +37,18 @@ export class RankedSystem {
     }
 
     const success = passed === challenge.testCases.length;
-    if (success) {
-      this.updateUserScore(userId, 100); // Fixed score for now
+    
+    // Save interaction to Supabase
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase
+        .from('user_interactions')
+        .upsert({
+          user_id: user.id,
+          challenge_id: challenge.id,
+          has_solved: success,
+          best_submission_source: success ? userCode : undefined // Only save source on success for now
+        }, { onConflict: 'user_id,challenge_id' });
     }
 
     return {
@@ -51,15 +59,22 @@ export class RankedSystem {
     };
   }
 
-  getUsersSorted(): User[] {
-    return [...this.users].sort((a, b) => b.score - a.score);
-  }
+  async getUsersSorted(): Promise<User[]> {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, username, rank_points')
+      .order('rank_points', { ascending: false });
 
-  private updateUserScore(userId: string, points: number) {
-    const user = this.users.find(u => u.id === userId);
-    if (user) {
-      user.score += points;
+    if (error) {
+      console.error('Error fetching leaderboard:', error);
+      return [];
     }
+
+    return (data || []).map(row => ({
+      id: row.id,
+      name: row.username,
+      score: row.rank_points
+    }));
   }
 }
 

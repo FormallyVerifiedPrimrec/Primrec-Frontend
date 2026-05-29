@@ -1,46 +1,115 @@
-import type { Challenge } from "./types";
-import { MOCK_CHALLENGES } from "./mockData";
+import { supabase } from '../../supabaseClient';
+import type { Challenge } from './types';
 
 export class ChallengeService {
-  private challenges: Challenge[] = [...MOCK_CHALLENGES];
+  async getSorted(by: 'votes' | 'date', query: string = ''): Promise<Challenge[]> {
+    let supabaseQuery = supabase
+      .from('challenges')
+      .select('*');
 
-  getSorted(by: "votes" | "date", query: string = ""): Challenge[] {
-    const filtered = this.challenges.filter(
-      (c) =>
-        c.title.toLowerCase().includes(query.toLowerCase()) ||
-        c.description.toLowerCase().includes(query.toLowerCase()),
-    );
-
-    if (by === "votes") {
-      return filtered.sort((a, b) => b.votes - a.votes);
-    } else {
-      return filtered.sort((a, b) => b.createdAt - a.createdAt);
+    if (query) {
+      supabaseQuery = supabaseQuery.or(`title.ilike.%${query}%,description.ilike.%${query}%`);
     }
+
+    if (by === 'votes') {
+      supabaseQuery = supabaseQuery.order('votes', { ascending: false });
+    } else {
+      supabaseQuery = supabaseQuery.order('created_at', { ascending: false });
+    }
+
+    const { data, error } = await supabaseQuery;
+
+    if (error) {
+      console.error('Error fetching challenges:', error);
+      return [];
+    }
+
+    return (data || []).map(row => ({
+      id: row.id,
+      creatorId: row.creator_id,
+      title: row.title,
+      description: row.description,
+      templateFunc: row.template_func,
+      postcondition: row.postcondition,
+      suggestedSolution: row.suggested_solution,
+      votes: row.votes,
+      createdAt: new Date(row.created_at).getTime(),
+      testCases: [], // In a real app, these might be in a separate table or JSON column
+    }));
   }
 
-  upvote(id: string) {
-    const challenge = this.challenges.find((c) => c.id === id);
-    if (challenge) challenge.votes++;
+  async upvote(challengeId: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('user_interactions')
+      .upsert({ 
+        user_id: user.id, 
+        challenge_id: challengeId, 
+        vote_type: 1 
+      }, { onConflict: 'user_id,challenge_id' });
+
+    if (error) console.error('Error upvoting:', error);
   }
 
-  downvote(id: string) {
-    const challenge = this.challenges.find((c) => c.id === id);
-    if (challenge) challenge.votes--;
+  async downvote(challengeId: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('user_interactions')
+      .upsert({ 
+        user_id: user.id, 
+        challenge_id: challengeId, 
+        vote_type: -1 
+      }, { onConflict: 'user_id,challenge_id' });
+
+    if (error) console.error('Error downvoting:', error);
   }
 
-  getById(id: string): Challenge | undefined {
-    return this.challenges.find((c) => c.id === id);
-  }
+  async getById(id: string): Promise<Challenge | undefined> {
+    const { data, error } = await supabase
+      .from('challenges')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-  createChallenge(challenge: Omit<Challenge, "id" | "votes" | "createdAt">) {
-    const newChallenge: Challenge = {
-      ...challenge,
-      id: Math.random().toString(36).substr(2, 9),
-      votes: 0,
-      createdAt: Date.now(),
+    if (error || !data) return undefined;
+
+    return {
+      id: data.id,
+      creatorId: data.creator_id,
+      title: data.title,
+      description: data.description,
+      templateFunc: data.template_func,
+      postcondition: data.postcondition,
+      suggestedSolution: data.suggested_solution,
+      votes: data.votes,
+      createdAt: new Date(data.created_at).getTime(),
+      testCases: [],
     };
-    this.challenges.unshift(newChallenge);
-    return newChallenge;
+  }
+
+  async createChallenge(challenge: Omit<Challenge, 'id' | 'votes' | 'createdAt' | 'creatorId'>) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Must be logged in to create a challenge');
+
+    const { data, error } = await supabase
+      .from('challenges')
+      .insert({
+        creator_id: user.id,
+        title: challenge.title,
+        description: challenge.description,
+        template_func: challenge.templateFunc,
+        postcondition: challenge.postcondition,
+        suggested_solution: challenge.suggestedSolution,
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
   }
 }
 

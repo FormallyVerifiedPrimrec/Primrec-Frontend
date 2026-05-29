@@ -11,6 +11,7 @@ export interface TestCase {
 
 export interface Challenge {
   id: string;
+  creatorId: string;
   title: string;
   description: string; // Markdown & LaTeX supported
   templateFunc: string;

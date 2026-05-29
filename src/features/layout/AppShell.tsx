@@ -22,6 +22,7 @@ export function AppShell({
   onBack,
   postcondition,
   setPostcondition,
+  isCreator,
 }: {
   source: string
   setSource: Dispatch<SetStateAction<string>>
@@ -38,6 +39,7 @@ export function AppShell({
   onBack?: () => void
   postcondition: string
   setPostcondition: (val: string) => void
+  isCreator: boolean
 }) {
   return (
     <main className="workspace">
@@ -48,6 +50,7 @@ export function AppShell({
         setEditorFontSize={setEditorFontSize}
         onSubmit={onSubmit}
         isChallengeActive={!!currentChallenge}
+        isCreator={isCreator}
       />
       <ToolsSidebar
         functions={functions}

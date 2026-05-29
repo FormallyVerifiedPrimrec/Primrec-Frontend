@@ -6,28 +6,28 @@ describe('RankedSystem', () => {
   const rankedSystem = new RankedSystem();
   const additionChallenge = MOCK_CHALLENGES[0];
 
-  it('should verify a correct solution', () => {
+  it('should verify a correct solution', async () => {
     const userCode = `plusBase(x) = x;
 plusStep(x, y, previous) = succ(previous);
 plus(x, y) = primrec(plusBase, plusStep);`;
-    const result = rankedSystem.verifySubmission('testUser', additionChallenge, userCode);
+    const result = await rankedSystem.verifySubmission(additionChallenge, userCode);
     
     expect(result.success).toBe(true);
     expect(result.passedCount).toBe(additionChallenge.testCases.length);
     expect(result.message).toBe('All tests passed!');
   });
 
-  it('should fail an incorrect solution', () => {
+  it('should fail an incorrect solution', async () => {
     const userCode = 'plus(x, y) = zero';
-    const result = rankedSystem.verifySubmission('testUser', additionChallenge, userCode);
+    const result = await rankedSystem.verifySubmission(additionChallenge, userCode);
     
     expect(result.success).toBe(false);
     expect(result.passedCount).toBeLessThan(additionChallenge.testCases.length);
   });
 
-  it('should return compilation error for invalid syntax', () => {
+  it('should return compilation error for invalid syntax', async () => {
     const userCode = 'plus(x, y) = oops';
-    const result = rankedSystem.verifySubmission('testUser', additionChallenge, userCode);
+    const result = await rankedSystem.verifySubmission(additionChallenge, userCode);
     
     expect(result.success).toBe(false);
     expect(result.message).toContain('Compilation failed');

@@ -14,6 +14,7 @@ export function EditorPane({
   setEditorFontSize,
   onSubmit,
   isChallengeActive,
+  isCreator,
 }: {
   source: string
   setSource: Dispatch<SetStateAction<string>>
@@ -21,6 +22,7 @@ export function EditorPane({
   setEditorFontSize: Dispatch<SetStateAction<number>>
   onSubmit?: () => void
   isChallengeActive?: boolean
+  isCreator?: boolean
 }) {
   return (
     <section className="editorPane" aria-label="Editor">
@@ -28,7 +30,15 @@ export function EditorPane({
         <div className="paneHeaderRow">
           <div className="paneTitle">Editor</div>
           {isChallengeActive && onSubmit && (
-            <button className="submitBtn" onClick={onSubmit}>Submit Solution</button>
+            <button 
+              className="submitBtn" 
+              onClick={onSubmit}
+              disabled={isCreator}
+              title={isCreator ? "You cannot submit to your own challenge" : "Submit Solution"}
+              style={{ opacity: isCreator ? 0.5 : 1, cursor: isCreator ? 'not-allowed' : 'pointer' }}
+            >
+              {isCreator ? 'Your Challenge' : 'Submit Solution'}
+            </button>
           )}
         </div>
         <div className="paneSubRow">

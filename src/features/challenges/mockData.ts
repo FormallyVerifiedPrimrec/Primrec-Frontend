@@ -3,6 +3,7 @@ import type { Challenge, User } from './types';
 export const MOCK_CHALLENGES: Challenge[] = [
   {
     id: '1',
+    creatorId: 'u1',
     title: 'Addition',
     description: 'Implement a function `plus(x, y)` that returns the sum of $x$ and $y$.',
     templateFunc: `plusBase(x) = x;
@@ -19,6 +20,7 @@ plus(x, y) = primrec(plusBase, plusStep);`,
   },
   {
     id: '2',
+    creatorId: 'u2',
     title: 'Multiplication',
     description: 'Implement a function `mult(x, y)` that returns the product of $x$ and $y$. Hint: Use your `plus` function or define it locally.',
     templateFunc: `plusBase(x) = x;
@@ -38,6 +40,7 @@ mult(x, y) = primrec(multBase, multStep);`,
   },
   {
     id: '3',
+    creatorId: 'u3',
     title: 'Factorial',
     description: 'Implement the factorial function $n!$. Remember that $0! = 1$.',
     templateFunc: `plusBase(x) = x;
