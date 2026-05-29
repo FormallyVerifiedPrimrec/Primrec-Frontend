@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Challenge } from "./types";
+import { Markdown } from "./Markdown";
 
 interface CreateChallengeModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export function CreateChallengeModal({
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newPostcondition, setNewPostcondition] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
 
   if (!isOpen) return null;
 
@@ -33,6 +35,7 @@ export function CreateChallengeModal({
     setNewTitle("");
     setNewDescription("");
     setNewPostcondition("");
+    setShowPreview(false);
     onClose();
   };
 
@@ -50,13 +53,28 @@ export function CreateChallengeModal({
           />
         </div>
         <div className="modalField">
-          <label>Description / Message</label>
-          <textarea
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-            placeholder="Describe what the user should implement..."
-            rows={4}
-          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <label>Description / Message (Markdown & LaTeX support)</label>
+            <button 
+              className="iconBtn" 
+              style={{ fontSize: '11px', padding: '2px 8px' }}
+              onClick={() => setShowPreview(!showPreview)}
+            >
+              {showPreview ? 'Edit' : 'Preview'}
+            </button>
+          </div>
+          {showPreview ? (
+            <div className="textarea" style={{ height: '300px', overflowY: 'auto', background: 'var(--bg)' }}>
+              <Markdown content={newDescription || "*No description provided*"} />
+            </div>
+          ) : (
+            <textarea
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              placeholder="Describe what the user should implement... Use $x$ for inline math and $$...$$ for blocks."
+              rows={4}
+            />
+          )}
         </div>
         <div className="modalField">
           <label>Postcondition</label>

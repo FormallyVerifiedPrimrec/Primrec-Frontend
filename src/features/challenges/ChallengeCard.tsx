@@ -1,4 +1,5 @@
 import type { Challenge } from './types';
+import { Markdown } from './Markdown';
 
 export function ChallengeCard({ 
   challenge, 
@@ -21,7 +22,7 @@ export function ChallengeCard({
           <button onClick={() => onDownvote(challenge.id)} title="Downvote">▼</button>
         </div>
       </div>
-      <p className="challengeDescription">{challenge.description}</p>
+      <Markdown className="challengeDescription" content={challenge.description} />
       <button className="solveBtn" onClick={() => onSolve(challenge.id)}>Solve Challenge</button>
     </div>
   );

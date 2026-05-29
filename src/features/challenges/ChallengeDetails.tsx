@@ -1,4 +1,5 @@
 import type { Challenge, SubmissionResult } from './types';
+import { Markdown } from './Markdown';
 
 export function ChallengeDetails({ 
   challenge, 
@@ -11,7 +12,7 @@ export function ChallengeDetails({
     <div className="challengeDetails">
       <h3 className="challengeTitle">{challenge.title}</h3>
       <div className="challengeDescriptionMarkdown">
-        {challenge.description}
+        <Markdown content={challenge.description} />
       </div>
       
       {submissionResult && (
