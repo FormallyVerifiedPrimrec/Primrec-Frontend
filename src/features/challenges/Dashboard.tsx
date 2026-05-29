@@ -4,7 +4,7 @@ import { Leaderboard } from "./Leaderboard";
 import { challengeService } from "./challengeService";
 import { rankedSystem } from "./rankedSystem";
 import { CreateChallengeModal } from "./CreateChallengeModal";
-import type { Challenge, User } from "./types";
+import type { Challenge, User, CreateChallengePayload } from "./types";
 import { supabase } from "../../supabaseClient";
 
 export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
@@ -99,7 +99,7 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
   };
 
   const handleCreateChallenge = async (
-    challenge: Omit<Challenge, "id" | "votes" | "userVote" | "createdAt" | "creatorId">,
+    challenge: CreateChallengePayload,
   ) => {
     await challengeService.createChallenge(challenge);
     setIsModalOpen(false);
@@ -153,7 +153,7 @@ export function Dashboard({ onSolve }: { onSolve: (id: string) => void }) {
               + Create Challenge
             </button>
             {error && (
-              <div className="empty" style={{ color: '#b42318', background: 'rgba(180, 35, 24, 0.1)', padding: '12px', borderRadius: '8px' }}>
+              <div className="empty" style={{ color: 'var(--danger)', background: 'var(--danger-bg)', padding: '12px', borderRadius: '8px' }}>
                 Error: {error}
               </div>
             )}

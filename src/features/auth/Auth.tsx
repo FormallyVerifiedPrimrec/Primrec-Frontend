@@ -51,7 +51,7 @@ export function Auth() {
         <h2 style={{ textAlign: 'center' }}>{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
         
         {error && (
-          <div style={{ color: '#b42318', padding: '10px', background: 'rgba(180, 35, 24, 0.1)', borderRadius: '8px', fontSize: '13px' }}>
+          <div style={{ color: 'var(--danger)', padding: '10px', background: 'var(--danger-bg)', borderRadius: '8px', fontSize: '13px' }}>
             {error}
           </div>
         )}

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import type { Challenge } from "./types";
+import type { CreateChallengePayload } from "./types";
 import { Markdown } from "./Markdown";
 
 interface CreateChallengeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (challenge: Omit<Challenge, "id" | "votes" | "userVote" | "createdAt" | "creatorId">) => void;
+  onCreate: (challenge: CreateChallengePayload) => void;
 }
 
 export function CreateChallengeModal({

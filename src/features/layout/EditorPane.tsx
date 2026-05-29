@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 
+import { parseSyntax } from '../../primrecLanguage/parser'
 import { InsertButtons } from '../editor/InsertButtons'
 import { PrimrecEditor } from '../editor/PrimrecEditor'
 
@@ -24,17 +26,26 @@ export function EditorPane({
   isChallengeActive?: boolean
   isCreator?: boolean
 }) {
+  const definedNames = useMemo(() => {
+    const parsed = parseSyntax(source)
+    return new Set(
+      parsed.ast.definitions
+        .filter((d) => d.kind === 'FunctionDefinition')
+        .map((d) => d.name),
+    )
+  }, [source])
+
   return (
     <section className="editorPane" aria-label="Editor">
       <div className="paneHeader">
         <div className="paneHeaderRow">
           <div className="paneTitle">Editor</div>
           {isChallengeActive && onSubmit && (
-            <button 
-              className="submitBtn" 
+            <button
+              className="submitBtn"
               onClick={onSubmit}
               disabled={isCreator}
-              title={isCreator ? "You cannot submit to your own challenge" : "Submit Solution"}
+              title={isCreator ? 'You cannot submit to your own challenge' : 'Submit Solution'}
               style={{ opacity: isCreator ? 0.5 : 1, cursor: isCreator ? 'not-allowed' : 'pointer' }}
             >
               {isCreator ? 'Your Challenge' : 'Submit Solution'}
@@ -42,8 +53,8 @@ export function EditorPane({
           )}
         </div>
         <div className="paneSubRow">
-          <InsertButtons setSource={setSource} source={source} />
-          <div className="zoomControls" aria-label="Editor font size">
+          <InsertButtons setSource={setSource} definedNames={definedNames} />
+          <div className="toolbarGroup" aria-label="Editor font size">
             <button
               className="iconBtn"
               type="button"

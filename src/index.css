@@ -16,6 +16,16 @@
   --accent-bg: rgba(53, 178, 196, 0.15);
   --accent-border: rgba(53, 178, 196, 0.5);
   --social-bg: rgba(47, 48, 58, 0.5);
+
+  --danger: #b42318;
+  --danger-bright: #ff4444;
+  --danger-bg: rgba(180, 35, 24, 0.1);
+  --danger-border: rgba(180, 35, 24, 0.3);
+
+  --success: #89dfda;
+  --success-bg: rgba(137, 223, 218, 0.1);
+  --success-border: rgba(137, 223, 218, 0.3);
+
   --shadow:
     rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
 

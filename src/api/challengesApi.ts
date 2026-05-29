@@ -79,6 +79,5 @@ export async function saveSubmission(id: string, payload: { success: boolean; so
 }
 
 export async function getLeaderboard(): Promise<User[]> {
-  const raw = await apiFetch<Array<{ id: string; name: string; score: number }>>(`/api/leaderboard`)
-  return raw.map((u) => ({ id: u.id, name: u.name, score: u.score }))
+  return apiFetch<User[]>(`/api/leaderboard`)
 }

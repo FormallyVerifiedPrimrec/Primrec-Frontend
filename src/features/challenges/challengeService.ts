@@ -1,4 +1,4 @@
-import type { Challenge } from './types'
+import type { Challenge, CreateChallengePayload } from './types'
 import {
   createChallenge as apiCreateChallenge,
   getChallengeById as apiGetChallengeById,
@@ -23,7 +23,7 @@ export class ChallengeService {
     }
   }
 
-  async createChallenge(challenge: Omit<Challenge, 'id' | 'votes' | 'userVote' | 'createdAt' | 'creatorId'>) {
+  async createChallenge(challenge: CreateChallengePayload) {
     return apiCreateChallenge({
       title: challenge.title,
       description: challenge.description,

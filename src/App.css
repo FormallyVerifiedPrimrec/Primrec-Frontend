@@ -1,3 +1,33 @@
+.appContainer {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.criticalError {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  color: #fff;
+  gap: 20px;
+}
+
+.criticalError h1 {
+  color: var(--danger-bright);
+}
+
+.loadingScreen {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text);
+}
+
 .appRoot {
   height: 100%;
   min-height: 0;
@@ -212,7 +242,7 @@
   color: var(--text);
 }
 
-.fnInsertControls {
+.toolbarGroup {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -223,34 +253,8 @@
   flex: 0 0 auto;
 }
 
-.fnInsertControls .iconBtn {
+.toolbarGroup .iconBtn {
   padding: 6px 8px;
-}
-
-.insertButtons {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--social-bg);
-  flex: 0 0 auto;
-}
-
-.insertButtons .iconBtn {
-  padding: 6px 8px;
-}
-
-.zoomControls {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--social-bg);
-  flex: 0 0 auto;
 }
 
 .zoomValue {
@@ -498,15 +502,15 @@
 }
 
 .statusBadge.ok {
-  color: #89dfda;
-  background: rgba(137, 223, 218, 0.1);
-  border-color: rgba(137, 223, 218, 0.3);
+  color: var(--success);
+  background: var(--success-bg);
+  border-color: var(--success-border);
 }
 
 .statusBadge.error {
-  color: #b42318;
-  background: rgba(180, 35, 24, 0.1);
-  border-color: rgba(180, 35, 24, 0.3);
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
 }
 
 .issueList {
@@ -888,15 +892,15 @@
 }
 
 .submissionFeedback.success {
-  background: rgba(137, 223, 218, 0.1);
-  border-color: rgba(137, 223, 218, 0.3);
-  color: #89dfda;
+  background: var(--success-bg);
+  border-color: var(--success-border);
+  color: var(--success);
 }
 
 .submissionFeedback.failure {
-  background: rgba(180, 35, 24, 0.1);
-  border-color: rgba(180, 35, 24, 0.3);
-  color: #b42318;
+  background: var(--danger-bg);
+  border-color: var(--danger-border);
+  color: var(--danger);
 }
 
 .progress {

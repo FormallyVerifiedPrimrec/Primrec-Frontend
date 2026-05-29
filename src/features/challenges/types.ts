@@ -29,3 +29,5 @@ export interface SubmissionResult {
   passedCount: number;
   totalCount: number;
 }
+
+export type CreateChallengePayload = Omit<Challenge, 'id' | 'votes' | 'userVote' | 'createdAt' | 'creatorId'>;
