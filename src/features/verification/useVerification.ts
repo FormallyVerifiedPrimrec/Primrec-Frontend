@@ -16,52 +16,107 @@ export interface UseVerification {
   cancel: () => void;
 }
 
-export function useVerification(source: string): UseVerification {
-  const [results, setResults] = useState<Record<string, VerificationResult>>({});
-  const [isRunning, setIsRunning] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface VerificationState {
+  scopeKey: string;
+  results: Record<string, VerificationResult>;
+  isRunning: boolean;
+  error: string | null;
+}
+
+export function useVerification(source: string, resetKey = ''): UseVerification {
+  const scopeKey = `${resetKey}\u0000${source}`;
+  const [state, setState] = useState<VerificationState>({
+    scopeKey,
+    results: {},
+    isRunning: false,
+    error: null,
+  });
+
+  if (state.scopeKey !== scopeKey) {
+    setState({
+      scopeKey,
+      results: {},
+      isRunning: false,
+      error: null,
+    });
+  }
 
   const start = useCallback((target: string) => {
-    setResults({});
-    setError(null);
-    setIsRunning(true);
+    setState({
+      scopeKey,
+      results: {},
+      isRunning: true,
+      error: null,
+    });
 
     const handle = verificationRunner.start(
       source,
       target,
       (event) => {
         if (event.type === 'progress') {
-          setResults((prev) => ({ ...prev, [event.name]: event.result }));
+          setState((prev) => {
+            if (prev.scopeKey !== scopeKey) return prev;
+            return {
+              ...prev,
+              results: { ...prev.results, [event.name]: event.result },
+            };
+          });
         } else if (event.type === 'done') {
-          setIsRunning(false);
+          setState((prev) => {
+            if (prev.scopeKey !== scopeKey) return prev;
+            return { ...prev, isRunning: false };
+          });
         } else if (event.type === 'error') {
-          setError(event.message);
-          setIsRunning(false);
+          setState((prev) => {
+            if (prev.scopeKey !== scopeKey) return prev;
+            return { ...prev, error: event.message, isRunning: false };
+          });
         }
       },
     );
 
     handle.promise.catch((reason) => {
       if (reason instanceof VerificationCancelledError) {
-        setIsRunning(false);
+        setState((prev) => {
+          if (prev.scopeKey !== scopeKey) return prev;
+          return { ...prev, isRunning: false };
+        });
         return;
       }
-      setError(reason instanceof Error ? reason.message : String(reason));
-      setIsRunning(false);
+      setState((prev) => {
+        if (prev.scopeKey !== scopeKey) return prev;
+        return {
+          ...prev,
+          error: reason instanceof Error ? reason.message : String(reason),
+          isRunning: false,
+        };
+      });
     });
-  }, [source]);
+  }, [scopeKey, source]);
 
   const cancel = useCallback(() => {
     verificationRunner.cancel();
-    setIsRunning(false);
-  }, []);
+    setState((prev) => {
+      if (prev.scopeKey !== scopeKey) return prev;
+      return { ...prev, isRunning: false };
+    });
+  }, [scopeKey]);
 
-  // Abort the run when the editor content changes or the panel unmounts.
+  // Reset stale verification data and abort the run when the editor content or
+  // selected verification target changes. Unmounting also aborts the run.
   useEffect(() => {
     return () => {
       verificationRunner.cancel();
     };
-  }, [source]);
+  }, [scopeKey]);
 
-  return { results, isRunning, error, start, cancel };
+  const isCurrentScope = state.scopeKey === scopeKey;
+
+  return {
+    results: isCurrentScope ? state.results : {},
+    isRunning: isCurrentScope ? state.isRunning : false,
+    error: isCurrentScope ? state.error : null,
+    start,
+    cancel,
+  };
 }

@@ -36,7 +36,10 @@ export function VerifyPanel({
     [source, challengePostconditions],
   );
   const analysis = useMemo(() => analyzeProgram(combinedSource), [combinedSource]);
-  const { results, isRunning, error, start, cancel } = useVerification(combinedSource);
+  const { results, isRunning, error, start, cancel } = useVerification(
+    combinedSource,
+    fn?.name,
+  );
 
   const byName = useMemo(
     () => new Map(analysis.functions.map((item) => [item.name, item])),
