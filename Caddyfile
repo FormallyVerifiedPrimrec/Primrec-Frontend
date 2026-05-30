@@ -1,10 +1,9 @@
-www.{$DOMAIN} {
-	redir https://{$DOMAIN}{uri} permanent
-}
-
-{$DOMAIN}, :80 {
+{$DOMAIN}, www.{$DOMAIN} {
 	root * /srv
 	encode gzip
+
+	@www host www.{$DOMAIN}
+	redir @www https://{$DOMAIN}{uri} permanent
 
 	handle /api/* {
 		reverse_proxy challenges-backend:8080
