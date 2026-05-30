@@ -64,7 +64,7 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
       <div className="modalContent profileModal" onClick={e => e.stopPropagation()}>
         <div className="modalHeader">
           <h3>Edit Profile</h3>
-          <button className="closeBtn" onClick={onClose}>&times;</button>
+          <button className="iconBtn" onClick={onClose} aria-label="Close">✕</button>
         </div>
 
         {loading ? (
@@ -112,8 +112,8 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
 
             <div className="statsPreview">
               <div className="statItem">
-                <span className="statLabel">Rank Points</span>
-                <span className="statValue">{profile?.rankPoints}</span>
+                <span className="statLabel">Rank Points:</span>
+                <span className="statValue"> {profile?.rankPoints ?? 0}</span>
               </div>
             </div>
           </div>
