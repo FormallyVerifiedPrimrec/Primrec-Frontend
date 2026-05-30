@@ -1,8 +1,7 @@
-www.{$DOMAIN} {
-	redir https://{$DOMAIN}{uri} permanent
-}
+{$DOMAIN}, www.{$DOMAIN} {
+	@www host www.{$DOMAIN}
+	redir @www https://{$DOMAIN}{uri} permanent
 
-{$DOMAIN}, :80 {
 	root * /srv
 	encode gzip
 
@@ -10,7 +9,6 @@ www.{$DOMAIN} {
 		reverse_proxy challenges-backend:8080
 	}
 
-	# Strip the /solver prefix so the backend sees its real route (/solve).
 	handle_path /solver/* {
 		reverse_proxy solver-backend:8080
 	}
