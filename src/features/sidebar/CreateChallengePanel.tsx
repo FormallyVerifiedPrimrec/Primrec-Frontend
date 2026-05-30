@@ -78,7 +78,7 @@ export function CreateChallengePanel({
         description,
         postcondition: targetFn.postconditionText ?? targetFunctionName,
         suggestedSolution: source,
-        templateFunc: `// Implement ${targetFunctionName}\n`,
+        templateFunc: `# Implement ${targetFunctionName}\n`,
         testCases: [],
       });
 

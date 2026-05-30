@@ -11,7 +11,7 @@ import { rankedSystem } from '../challenges/rankedSystem'
 import type { SubmissionResult, Challenge } from '../challenges/types'
 
 const DEFAULT_SOURCE = ''
-const CREATE_TEMPLATE = '// Write your suggested solution here\n'
+const CREATE_TEMPLATE = '# Write your suggested solution here\n'
 
 export function EditorPage() {
   const { id } = useParams()
