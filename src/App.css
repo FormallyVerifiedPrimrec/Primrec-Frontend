@@ -1410,20 +1410,29 @@
 }
 
 .primrecHelpModal {
-  width: min(520px, 92vw);
+  width: min(1040px, 94vw);
+  height: min(84vh, 860px);
+  max-width: 94vw;
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .primrecHelpBody {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
+  overflow-y: auto;
+  padding: 24px;
 }
 
 .primrecHelpBody p {
   margin: 0;
   color: var(--text);
-  font-size: 13px;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .primrecHelpBody code {
@@ -1434,15 +1443,88 @@
 
 .primrecHelpBody pre {
   margin: 0;
-  padding: 10px 12px;
+  padding: 12px 14px;
   overflow-x: auto;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--code-bg);
   color: var(--text-h);
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 12.5px;
   line-height: 1.45;
+}
+
+.helpSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.helpSection h4 {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.helpSection ul {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.helpSection li + li {
+  margin-top: 4px;
+}
+
+.syntaxTable {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.42fr) minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--code-bg);
+}
+
+.syntaxTable > div {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.syntaxTable > div:nth-child(odd) {
+  border-right: 1px solid var(--border);
+  color: var(--text-h);
+}
+
+.syntaxTable > div:nth-last-child(-n + 2) {
+  border-bottom: none;
+}
+
+@media (max-width: 720px) {
+  .primrecHelpModal {
+    width: 96vw;
+    height: 90vh;
+    max-height: 90vh;
+  }
+
+  .primrecHelpBody {
+    padding: 18px;
+  }
+
+  .syntaxTable {
+    grid-template-columns: 1fr;
+  }
+
+  .syntaxTable > div:nth-child(odd) {
+    border-right: none;
+    border-bottom: none;
+    padding-bottom: 4px;
+  }
 }
 
 .modalFooter {
