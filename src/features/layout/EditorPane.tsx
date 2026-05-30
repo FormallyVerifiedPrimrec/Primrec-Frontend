@@ -21,6 +21,7 @@ export function EditorPane({
   isCreating,
   isCreator,
   themeVariant,
+  hasSubmitted,
 }: {
   source: string
   setSource: Dispatch<SetStateAction<string>>
@@ -31,6 +32,7 @@ export function EditorPane({
   isCreating?: boolean
   isCreator?: boolean
   themeVariant: 'dark' | 'light'
+  hasSubmitted?: boolean
 }) {
   const definedNames = useMemo(() => {
     const parsed = parseSyntax(source)
@@ -42,20 +44,17 @@ export function EditorPane({
   }, [source])
 
   const integrity = useMemo(() => {
-    if (!currentChallenge || isCreating) return { isValid: true };
-    return checkChallengeIntegrity(source, currentChallenge);
-  }, [source, currentChallenge, isCreating]);
+    if (!currentChallenge || isCreating || hasSubmitted) return { isValid: true }
+    return checkChallengeIntegrity(source, currentChallenge)
+  }, [source, currentChallenge, isCreating, hasSubmitted])
 
-  const handleReAdd = () => {
-    if (!currentChallenge) return;
-    
-    setSource(prev => {
-      if (integrity.missingFunction) {
-        return prev + "\n\n" + currentChallenge.templateFunc;
-      }
-      return prev;
-    });
-  };
+  const submitDisabled = isCreator || hasSubmitted || !integrity.isValid
+
+  const submitTitle = isCreator
+    ? 'You cannot submit to your own challenge'
+    : hasSubmitted
+      ? 'Already submitted'
+      : 'Submit Solution'
 
   return (
     <section className="editorPane" aria-label="Editor">
@@ -63,12 +62,14 @@ export function EditorPane({
         <div className="paneHeaderRow">
           <div className="paneTitle">{isCreating ? 'Create Challenge' : 'Editor'}</div>
           <div className="editorActions" style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            {!integrity.isValid && (
-              <div className="integrityWarning" style={{ color: 'var(--danger-bright)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {!integrity.isValid && !hasSubmitted && (
+              <div className="integrityWarning" style={{ color: 'var(--danger-bright)', fontSize: '12px' }}>
                 <span>⚠ {integrity.error}</span>
-                <button className="iconBtn" onClick={handleReAdd} style={{ padding: '2px 8px', borderColor: 'var(--danger-bright)', color: 'var(--danger-bright)' }}>
-                  Re-add
-                </button>
+              </div>
+            )}
+            {hasSubmitted && (
+              <div style={{ color: 'var(--success)', fontSize: '12px' }}>
+                ✓ Solved
               </div>
             )}
             {isCreating && (
@@ -77,14 +78,14 @@ export function EditorPane({
               </div>
             )}
             {currentChallenge && onSubmit && !isCreating && (
-              <button 
-                className="submitBtn" 
+              <button
+                className="submitBtn"
                 onClick={onSubmit}
-                disabled={isCreator || !integrity.isValid}
-                title={isCreator ? "You cannot submit to your own challenge" : "Submit Solution"}
-                style={{ opacity: (isCreator || !integrity.isValid) ? 0.5 : 1, cursor: (isCreator || !integrity.isValid) ? 'not-allowed' : 'pointer' }}
+                disabled={submitDisabled}
+                title={submitTitle}
+                style={{ opacity: submitDisabled ? 0.5 : 1, cursor: submitDisabled ? 'not-allowed' : 'pointer' }}
               >
-                {isCreator ? 'Your Challenge' : 'Submit Solution'}
+                {isCreator ? 'Your Challenge' : hasSubmitted ? 'Submitted' : 'Submit Solution'}
               </button>
             )}
           </div>

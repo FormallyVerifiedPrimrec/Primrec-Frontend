@@ -25,36 +25,51 @@ export function EditorPage() {
   const [selectedName, setSelectedName] = useState<string>('plus')
   const [submissionResult, setSubmissionResult] = useState<SubmissionResult | undefined>()
   const [currentChallenge, setCurrentChallenge] = useState<Challenge | undefined>()
+  const [hasSubmitted, setHasSubmitted] = useState(false)
 
   const isCreating = location.state?.isCreating ?? false
 
   const functions = useMemo(() => discoverFunctions(source), [source])
   const parseResult = useMemo(() => parsePrimRecProgram(source), [source])
 
+  const resolveSource = (challenge: Challenge): string => {
+    if (challenge.mySolution) return challenge.mySolution
+    if (session?.user?.id === challenge.creatorId && challenge.suggestedSolution) {
+      return challenge.suggestedSolution
+    }
+    return challenge.templateFunc
+  }
+
   useEffect(() => {
     if (id) {
       challengeService.getById(id).then((challenge) => {
         if (challenge) {
           setCurrentChallenge(challenge)
-          setSource(challenge.templateFunc)
+          setSource(resolveSource(challenge))
           setSubmissionResult(undefined)
+          setHasSubmitted(challenge.isSolved)
         }
       })
     } else if (isCreating) {
       setCurrentChallenge(undefined)
       setSource(CREATE_TEMPLATE)
       setSubmissionResult(undefined)
+      setHasSubmitted(false)
     } else {
       setCurrentChallenge(undefined)
       setSubmissionResult(undefined)
+      setHasSubmitted(false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isCreating])
 
   const handleSubmit = async () => {
-    if (currentChallenge) {
+    if (currentChallenge && !hasSubmitted) {
       const result = await rankedSystem.verifySubmission(currentChallenge, source)
       setSubmissionResult(result)
+      if (result.success) {
+        setHasSubmitted(true)
+      }
     }
   }
 
@@ -92,6 +107,7 @@ export function EditorPage() {
       onBack={handleBack}
       isCreator={!!isCreator}
       themeVariant={theme.variant}
+      hasSubmitted={hasSubmitted}
     />
   )
 }

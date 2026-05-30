@@ -24,6 +24,7 @@ export function AppShell({
   onBack,
   isCreator,
   themeVariant,
+  hasSubmitted,
 }: {
   source: string
   setSource: Dispatch<SetStateAction<string>>
@@ -41,6 +42,7 @@ export function AppShell({
   onBack?: () => void
   isCreator: boolean
   themeVariant: ThemeVariant
+  hasSubmitted: boolean
 }) {
   return (
     <main className="workspace">
@@ -54,6 +56,7 @@ export function AppShell({
         isCreating={isCreating}
         isCreator={isCreator}
         themeVariant={themeVariant}
+        hasSubmitted={hasSubmitted}
       />
       <ToolsSidebar
         functions={functions}

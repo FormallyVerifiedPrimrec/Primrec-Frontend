@@ -22,14 +22,15 @@ export interface Challenge {
   id: string;
   creatorId: string;
   title: string;
-  description: string; // Markdown & LaTeX supported
+  description: string;
   templateFunc: string;
-  postcondition: string; // Validation logic
-  suggestedSolution?: string; // Hidden from users, used for verification
+  postcondition: string;
+  suggestedSolution?: string;
   testCases: TestCase[];
   votes: number;
   userVote: -1 | 0 | 1;
   isSolved: boolean;
+  mySolution?: string;
   createdAt: number;
 }
 
