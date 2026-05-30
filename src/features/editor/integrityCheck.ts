@@ -1,9 +1,9 @@
 // Challenge integrity check.
 //
 // Verifies that the editor content still contains the function a challenge asks
-// for, together with a postcondition for it. Updated to the new language model
-// where postconditions live in a separate section (surfaced via analyzeProgram)
-// instead of a `FunctionDefinition.postcondition` field.
+// for. Challenge postconditions are owned by the challenge and are merged into
+// the verification source separately, so participants do not need to duplicate
+// them in the editable source just to submit.
 
 import type { Challenge } from '../challenges/types';
 import { analyzeProgram } from '../verification';
@@ -11,7 +11,6 @@ import { analyzeProgram } from '../verification';
 export interface IntegrityStatus {
   isValid: boolean;
   missingFunction?: boolean;
-  missingPostcondition?: boolean;
   error?: string;
 }
 
@@ -33,14 +32,6 @@ export function checkChallengeIntegrity(source: string, challenge: Challenge): I
       isValid: false,
       missingFunction: true,
       error: `Required function '${targetName}' is missing.`,
-    };
-  }
-
-  if (!fn.hasPostcondition) {
-    return {
-      isValid: false,
-      missingPostcondition: true,
-      error: `Postcondition for '${targetName}' is missing.`,
     };
   }
 

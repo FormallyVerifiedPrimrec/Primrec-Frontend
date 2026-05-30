@@ -74,6 +74,39 @@
   letter-spacing: -0.5px;
 }
 
+.brandGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brandHelpBtn {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent-border);
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.brandHelpBtn:hover {
+  background: color-mix(in srgb, var(--accent-bg) 70%, var(--accent) 30%);
+  color: var(--text-h);
+}
+
+.brandHelpBtn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .navLinks {
   display: flex;
   gap: 8px;
@@ -1374,6 +1407,42 @@
 
 .modalBody {
   padding: 20px;
+}
+
+.primrecHelpModal {
+  width: min(520px, 92vw);
+}
+
+.primrecHelpBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.primrecHelpBody p {
+  margin: 0;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.primrecHelpBody code {
+  color: var(--accent-2);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.primrecHelpBody pre {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--code-bg);
+  color: var(--text-h);
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .modalFooter {
