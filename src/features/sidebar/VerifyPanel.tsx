@@ -10,6 +10,7 @@ import { useMemo } from 'react';
 import type { PrimrecFunction } from '../primrec/functionDiscovery';
 import {
   analyzeProgram,
+  buildChallengeVerificationSource,
   useVerification,
   type VerificationResult,
   type VerificationStatus,
@@ -19,12 +20,23 @@ import {
 export function VerifyPanel({
   fn,
   source,
+  challengePostconditions,
 }: {
   fn?: PrimrecFunction;
   source: string;
+  /**
+   * Fixed postconditions owned by the challenge being solved. They are always
+   * checked (and cannot be overridden by the participant) but are held back for
+   * functions that do not exist yet — see `buildChallengeVerificationSource`.
+   */
+  challengePostconditions?: string;
 }) {
-  const analysis = useMemo(() => analyzeProgram(source), [source]);
-  const { results, isRunning, error, start, cancel } = useVerification(source);
+  const combinedSource = useMemo(
+    () => buildChallengeVerificationSource(source, challengePostconditions),
+    [source, challengePostconditions],
+  );
+  const analysis = useMemo(() => analyzeProgram(combinedSource), [combinedSource]);
+  const { results, isRunning, error, start, cancel } = useVerification(combinedSource);
 
   const byName = useMemo(
     () => new Map(analysis.functions.map((item) => [item.name, item])),

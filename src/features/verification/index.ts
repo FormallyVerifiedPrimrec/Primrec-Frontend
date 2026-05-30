@@ -25,3 +25,4 @@ export {
 export type { VerificationHandle } from './runner';
 export { useVerification } from './useVerification';
 export type { UseVerification } from './useVerification';
+export { buildChallengeVerificationSource } from './challengeSource';

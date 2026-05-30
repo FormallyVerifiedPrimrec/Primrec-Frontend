@@ -64,3 +64,32 @@ body {
 * {
   box-sizing: border-box;
 }
+
+/* Read-only challenge postconditions shown while solving a challenge. */
+.challengePostconditions {
+  margin-top: 12px;
+}
+.challengePostconditionsTitle {
+  margin: 0 0 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.challengePostconditionsHint {
+  margin: 0 0 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+.challengePostconditionsBody {
+  margin: 0;
+  padding: 8px;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  background: var(--bg);
+  border: 1px solid var(--border-color, rgba(127, 127, 127, 0.3));
+  border-radius: 6px;
+  color: var(--accent);
+  overflow-x: auto;
+}

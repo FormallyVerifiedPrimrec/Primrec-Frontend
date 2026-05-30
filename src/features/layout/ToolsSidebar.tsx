@@ -61,7 +61,11 @@ export function ToolsSidebar({
             parseResult={parseResult}
           />
           <RunnerPanel fn={selectedFn} parseResult={parseResult} />
-          <VerifyPanel fn={selectedFn} source={source} />
+          <VerifyPanel
+            fn={selectedFn}
+            source={source}
+            challengePostconditions={currentChallenge?.postcondition}
+          />
         </>
       )}
     </aside>
