@@ -42,6 +42,10 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
       setError('Username is required');
       return;
     }
+    if (username.trim().length > 50) {
+      setError('Username must be 50 characters or fewer');
+      return;
+    }
 
     setSaving(true);
     setError(null);
@@ -102,6 +106,7 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
                 onChange={e => setUsername(e.target.value)}
                 placeholder="Enter username"
                 className="modalInput"
+                maxLength={50}
               />
             </div>
 

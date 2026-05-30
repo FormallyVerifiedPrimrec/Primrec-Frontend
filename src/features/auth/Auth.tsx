@@ -64,6 +64,7 @@ export function Auth() {
               placeholder="Your public name"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              maxLength={50}
               required
             />
           </div>
