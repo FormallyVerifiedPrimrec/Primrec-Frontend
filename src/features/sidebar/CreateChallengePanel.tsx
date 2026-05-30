@@ -4,7 +4,6 @@ import { useState, useMemo } from "react";
 import { Markdown } from "../challenges/Markdown";
 import {
   analyzeProgram,
-  functionsWithoutPostcondition,
   verifyProgramOnce,
 } from "../verification";
 import { challengeService } from "../challenges/challengeService";
@@ -52,14 +51,6 @@ export function CreateChallengePanel({
 
       if (!targetFn.hasPostcondition) {
         setError(`Target function '${targetFunctionName}' must have a postcondition.`);
-        setIsVerifying(false);
-        return;
-      }
-
-      // Check if all functions have postconditions
-      const missingPost = functionsWithoutPostcondition(analysis);
-      if (missingPost.length > 0) {
-        setError(`Function '${missingPost[0]}' is missing a postcondition.`);
         setIsVerifying(false);
         return;
       }
@@ -178,7 +169,7 @@ export function CreateChallengePanel({
         )}
 
         <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
-          Tip: Use the editor to write the full solution with postconditions. The 'Publish' step will verify it.
+          Tip: Write your solution using any helper functions. Only the selected target function needs a postcondition.
         </div>
       </div>
     </section>
