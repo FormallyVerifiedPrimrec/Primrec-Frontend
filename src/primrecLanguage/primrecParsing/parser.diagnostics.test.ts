@@ -415,6 +415,26 @@ d(x) = a(x);`),
         expect.arrayContaining(['PARSE_UNEXPECTED_TOKEN']),
       );
     });
+
+    // Regression: a stray ';' at the start of a definition (e.g. left behind
+    // after a `post { ... }` block is masked out) must not make the parser
+    // spin forever in synchronize().
+    it('terminates on a leading semicolon', () => {
+      expect(() => parsePrimRecProgram(';')).not.toThrow();
+      expect(() => parsePrimRecProgram(';;;')).not.toThrow();
+    });
+
+    it('terminates on a stray semicolon between definitions', () => {
+      expect(() =>
+        parsePrimRecProgram('foo() = zero(); ; bar() = zero();'),
+      ).not.toThrow();
+    });
+
+    it('terminates on assorted stray punctuation', () => {
+      for (const source of ['} ;', ') ;', ', ;', '= ;']) {
+        expect(() => parsePrimRecProgram(source)).not.toThrow();
+      }
+    });
   });
 
   describe('combined primrec and composition errors', () => {

@@ -238,6 +238,14 @@ function consumeValue(
 }
 
 function synchronize(state: ParserState) {
+  // Always consume the token that could not start a definition so the caller
+  // makes progress. Without this, a leading ';' (e.g. left behind after a
+  // postcondition block is masked out) would make `previous().value === ';'`
+  // true immediately, returning without advancing and looping forever.
+  if (!isAtEnd(state)) {
+    advance(state);
+  }
+
   while (!isAtEnd(state)) {
     if (previous(state).value === ';') {
       return;

@@ -550,5 +550,5 @@ function peek(state: ParserState): PostToken {
 }
 
 function previous(state: ParserState): PostToken {
-  return state.tokens[state.current - 1];
+  return state.tokens[Math.max(0, state.current - 1)];
 }
