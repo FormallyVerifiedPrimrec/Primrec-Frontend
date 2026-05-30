@@ -71,7 +71,7 @@ export function CreateChallengeModal({
         description: newDescription,
         postcondition: newPostcondition,
         suggestedSolution: newSuggestedSolution,
-        templateFunc: `// Implement ${targetName}\n`,
+        templateFunc: `# Implement ${targetName}\n`,
         testCases: [],
       });
 
