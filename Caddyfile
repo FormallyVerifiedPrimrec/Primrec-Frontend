@@ -1,9 +1,16 @@
-{$DOMAIN}, www.{$DOMAIN} {
+# SSL/Auto-HTTPS deaktiviert (Let's-Encrypt-Rate-Limit).
+# `http://`-Prefix + `auto_https off` => Caddy holt KEINE Zertifikate mehr,
+# bedient nur Klartext-HTTP auf Port 80.
+{
+	auto_https off
+}
+
+http://{$DOMAIN}, http://www.{$DOMAIN} {
 	root * /srv
 	encode gzip
 
 	@www host www.{$DOMAIN}
-	redir @www https://{$DOMAIN}{uri} permanent
+	redir @www http://{$DOMAIN}{uri} permanent
 
 	handle /api/* {
 		reverse_proxy challenges-backend:8080
